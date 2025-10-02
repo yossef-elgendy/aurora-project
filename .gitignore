@@ -1,0 +1,123 @@
+# Magento 2 Docker Project .gitignore
+
+# Environment files with sensitive data
+env/*.env
+!env/*.env.sample
+!env/*.env.example
+
+# Docker volumes and data
+docker-data/
+volumes/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+log/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Cache directories
+cache/
+var/cache/
+var/page_cache/
+var/session/
+var/tmp/
+var/view_preprocessed/
+
+# Generated code
+generated/
+var/generation/
+
+# Composer
+vendor/
+composer.lock
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+pub/static/
+pub/media/
+pub/static.php
+
+# SSL certificates
+*.pem
+*.crt
+*.key
+ssldata/
+
+# Database dumps
+*.sql
+*.sql.gz
+
+# Backup files
+*.bak
+*.backup
+
+# Magento specific
+app/etc/env.php
+app/etc/config.php
+app/etc/config.local.php
+
+# Auth files
+auth.json
+auth.json.sample
+
+# Grunt
+grunt-config.json
+Gruntfile.js
+
+# Package files
+package.json
+package-lock.json
+
+# Nginx config
+nginx.conf
+
+# PHPUnit
+phpunit.xml
+phpunit.xml.dist
+
+# Test results
+test-results/
+coverage/
+
+# Xdebug
+xdebug.log
+
+# Redis dump
+dump.rdb
+
+# RabbitMQ data
+rabbitmqdata/
+
+# MySQL data
+dbdata/
+
+# Application data
+appdata/
+
+# Socket data
+sockdata/
