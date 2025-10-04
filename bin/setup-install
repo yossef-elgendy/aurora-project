@@ -6,7 +6,7 @@ DOMAIN=${1:-magento.test}
 # shellcheck source=../env/db.env
 source env/db.env
 # shellcheck source=../env/elasticsearch.env
-source env/elasticsearch.env
+# source env/elasticsearch.env
 # shellcheck source=../env/opensearch.env
 source env/opensearch.env
 # shellcheck source=../env/magento.env

@@ -32,35 +32,41 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    # Especially change passwords in db.env, magento.env, and rabbitmq.env
    ```
 
-3. **Start the Docker environment**
+3. **Start the Docker environment (without development tools)**
    ```bash
-   make start
+   bin/start --no-dev
    ```
 
-4. **Install Composer dependencies**
+4. **Copy files to container and install dependencies**
    ```bash
-   make composer install
+   bin/copytocontainer --all
+   bin/composer install
    ```
 
-5. **Run the setup process**
+5. **Install Magento with main domain**
    ```bash
-   make setup aurora.local
+   bin/setup-install aurora.local
    ```
 
-6. **Add domain to hosts file**
+6. **Setup additional domains**
    ```bash
-   # macOS/Linux
-   echo "127.0.0.1 aurora.local" | sudo tee -a /etc/hosts
-   
-   # Windows (run as Administrator)
-   # Edit C:\Windows\System32\drivers\etc\hosts
-   # Add: 127.0.0.1 aurora.local
+   bin/setup-domain aurora.fr.local
+   bin/setup-domain aurora.ie.local
+   bin/setup-domain aurora.it.local
    ```
 
-7. **Access your site**
-   - Frontend: `https://aurora.local`
-   - Admin: `https://aurora.local/admin`
-   - Admin credentials: As configured in `env/magento.env`
+7. **Restart containers to apply all changes**
+   ```bash
+   bin/restart
+   ```
+
+8. **Access your sites**
+   - **Main Store (English)**: `https://aurora.local`
+   - **French Store**: `https://aurora.fr.local`
+   - **Irish Store**: `https://aurora.ie.local`
+   - **Italian Store**: `https://aurora.it.local`
+   - **Admin Panel**: `https://aurora.local/admin`
+   - **Admin credentials**: As configured in `env/magento.env`
 
 ## 📋 Complete Setup Checklist for New Developers
 
@@ -68,11 +74,16 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
 - [ ] Git repository cloned
 - [ ] Environment files created from examples
 - [ ] Environment files edited with secure passwords
-- [ ] Domain added to hosts file
-- [ ] Containers started (`make start`)
-- [ ] Composer dependencies installed (`make composer install`)
-- [ ] Magento setup completed (`make setup aurora.local`)
-- [ ] Site accessible at `https://aurora.local`
+- [ ] Containers started (`bin/start --no-dev`)
+- [ ] Files copied to container (`bin/copytocontainer --all`)
+- [ ] Composer dependencies installed (`bin/composer install`)
+- [ ] Magento setup completed (`bin/setup-install aurora.local`)
+- [ ] Additional domains configured (`bin/setup-domain` for each domain)
+- [ ] Containers restarted (`bin/restart`)
+- [ ] Main site accessible at `https://aurora.local`
+- [ ] French store accessible at `https://aurora.fr.local`
+- [ ] Irish store accessible at `https://aurora.ie.local`
+- [ ] Italian store accessible at `https://aurora.it.local`
 
 ## 🛠 Development Commands
 
@@ -80,52 +91,52 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
 
 ```bash
 # Start/stop containers
-make start
-make stop
-make restart
+bin/start
+bin/stop
+bin/restart
 
 # Access container shell
-make bash
+bin/bash
 
 # Run Magento CLI commands
-make magento <command>
+bin/magento <command>
 
 # Clear cache
-make cache-clean
+bin/cache-clean
 
 # View logs
-make log
+bin/log
 ```
 
 ### Database Operations
 
 ```bash
 # Access MySQL
-make mysql
+bin/mysql
 
 # Backup database
-make mysqldump
+bin/mysqldump
 
 # Restore database (replace with your dump file)
-make mysql < dump.sql
+bin/mysql < dump.sql
 ```
 
 ### Development Tools
 
 ```bash
 # Code quality checks
-make phpcs
-make phpcbf
+bin/phpcs
+bin/phpcbf
 
 # Static analysis
-make analyse
+bin/analyse
 
 # Run tests
-make test
+bin/test
 
 # Enable/disable Xdebug
-make xdebug debug
-make xdebug off
+bin/xdebug debug
+bin/xdebug off
 ```
 
 ## 📁 Project Structure
@@ -154,16 +165,38 @@ Key environment files to configure:
 - **`env/magento.env`**: Magento admin user settings
 - **`env/phpfpm.env`**: PHP-FPM configuration
 
+### Multi-Domain Store Setup
+
+This project is configured with a multi-store setup:
+
+#### **Store Configuration:**
+- **Main Website (UK)**: `aurora.local` - English store with GBP currency
+- **EU Website**: 
+  - `aurora.fr.local` - French store with EUR currency
+  - `aurora.ie.local` - Irish store with GBP currency  
+  - `aurora.it.local` - Italian store with EUR currency
+
+#### **Store Structure:**
+```
+UK Website (aurora.local)
+├── English Store (en) - Default store
+└── Irish Store (ie)
+
+EU Website
+├── French Store (fr)
+└── Italian Store (it)
+```
+
+#### **Data Patches Applied:**
+- **AddWebsitesAndStores**: Creates the multi-store structure and sets website-level currencies
+- **UpdateStoreBaseUrls**: Configures domain-specific URLs for each store
+
 ### Domain Setup
 
-The project is configured to use `aurora.local` by default. To change this:
+To add additional domains:
 
-1. Update `env/magento.env` with your domain
-2. Run `make setup-domain <your-domain>`
-3. Add the domain to your hosts file:
-   ```bash
-   echo "127.0.0.1 aurora.local" >> /etc/hosts
-   ```
+1. Run `bin/setup-domain <your-domain>`
+2. Restart containers: `bin/restart`
 
 ## 🎨 Frontend Development
 
@@ -172,8 +205,8 @@ The project is configured to use `aurora.local` by default. To change this:
 1. **Create a new theme** in `src/app/design/frontend/VendorName/theme-name`
 2. **Set up Grunt** for live reload:
    ```bash
-   make setup-grunt
-   make grunt watch
+   bin/setup-grunt
+   bin/grunt watch
    ```
 3. **Install LiveReload browser extension** for automatic page refresh
 
@@ -187,12 +220,12 @@ The project is configured to use `aurora.local` by default. To change this:
 
 ### Unit Tests
 ```bash
-make test unit
+bin/test unit
 ```
 
 ### Integration Tests
 ```bash
-make test integration
+bin/test integration
 ```
 
 ## 📊 Monitoring & Debugging
@@ -204,20 +237,20 @@ make test integration
 ### Logs
 ```bash
 # View all logs
-make log
+bin/log
 
 # View specific log files
-make log system.log
-make log exception.log
+bin/log system.log
+bin/log exception.log
 ```
 
 ### Database Access
 ```bash
 # MySQL CLI
-make mysql
+bin/mysql
 
 # Redis CLI
-make redis
+bin/redis
 ```
 
 ## 🔐 Security
@@ -225,10 +258,10 @@ make redis
 ### SSL Certificates
 ```bash
 # Generate SSL certificates
-make setup-ssl aurora.local
+bin/setup-ssl aurora.local
 
 # Generate CA certificate
-make setup-ssl-ca
+bin/setup-ssl-ca
 ```
 
 ### Authentication
@@ -242,18 +275,18 @@ make setup-ssl-ca
 1. **Update environment files** with production values
 2. **Set proper file permissions**:
    ```bash
-   make fixperms
+   bin/fixperms
    ```
 3. **Enable production mode**:
    ```bash
-   make magento deploy:mode:set production
+   bin/magento deploy:mode:set production
    ```
 
 ### Backup Strategy
 
 ```bash
 # Database backup
-make mysqldump > backup-$(date +%Y%m%d).sql
+bin/mysqldump > backup-$(date +%Y%m%d).sql
 
 # Full project backup
 tar -czf aurora-backup-$(date +%Y%m%d).tar.gz src/ env/
@@ -264,7 +297,7 @@ tar -czf aurora-backup-$(date +%Y%m%d).tar.gz src/ env/
 ### Common Issues
 
 1. **Port conflicts**: Check if ports 80, 443, 3306, 6379 are available
-2. **Permission issues**: Run `make fixperms`
+2. **Permission issues**: Run `bin/fixperms`
 3. **Container won't start**: Check Docker Desktop is running
 4. **Database connection**: Verify `env/db.env` settings
 
@@ -272,11 +305,11 @@ tar -czf aurora-backup-$(date +%Y%m%d).tar.gz src/ env/
 
 ```bash
 # Stop and remove all containers
-make removeall
+bin/removeall
 
 # Start fresh
-make start
-make setup aurora.local
+bin/start
+bin/setup-install aurora.local
 ```
 
 ## 📚 Additional Resources

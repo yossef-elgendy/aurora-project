@@ -1,7 +1,7 @@
 services:
   app:
     volumes: &appvolumes
-      - ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
+      - ./src/nginx.conf:/var/www/html/nginx.conf:cached
       - ./src:/var/www/html:cached
 
   phpfpm:
