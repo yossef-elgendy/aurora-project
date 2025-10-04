@@ -48,19 +48,32 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    bin/setup-install aurora.local
    ```
 
-6. **Setup additional domains**
+6. **Add domains to /etc/hosts**
    ```bash
-   bin/setup-domain aurora.fr.local
-   bin/setup-domain aurora.ie.local
-   bin/setup-domain aurora.it.local
+   # Add these lines to your /etc/hosts file:
+   sudo nano /etc/hosts
+   
+   # Add the following entries:
+   127.0.0.1 aurora.local
+   127.0.0.1 aurora.fr.local
+   127.0.0.1 aurora.ie.local
+   127.0.0.1 aurora.it.local
    ```
 
-7. **Restart containers to apply all changes**
+7. **Setup SSL certificates for all domains**
+   ```bash
+   bin/setup-ssl aurora.local
+   bin/setup-ssl aurora.fr.local
+   bin/setup-ssl aurora.ie.local
+   bin/setup-ssl aurora.it.local
+   ```
+
+8. **Restart containers to apply all changes**
    ```bash
    bin/restart
    ```
 
-8. **Access your sites**
+9. **Access your sites**
    - **Main Store (English)**: `https://aurora.local`
    - **French Store**: `https://aurora.fr.local`
    - **Irish Store**: `https://aurora.ie.local`
@@ -78,7 +91,8 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
 - [ ] Files copied to container (`bin/copytocontainer --all`)
 - [ ] Composer dependencies installed (`bin/composer install`)
 - [ ] Magento setup completed (`bin/setup-install aurora.local`)
-- [ ] Additional domains configured (`bin/setup-domain` for each domain)
+- [ ] Domains added to `/etc/hosts` file
+- [ ] SSL certificates generated for all domains (`bin/setup-ssl` for each domain)
 - [ ] Containers restarted (`bin/restart`)
 - [ ] Main site accessible at `https://aurora.local`
 - [ ] French store accessible at `https://aurora.fr.local`
@@ -190,13 +204,40 @@ EU Website
 #### **Data Patches Applied:**
 - **AddWebsitesAndStores**: Creates the multi-store structure and sets website-level currencies
 - **UpdateStoreBaseUrls**: Configures domain-specific URLs for each store
+- **ConfigureStoreLocales**: Sets up locale configuration for each store
+
+#### **Store Locales:**
+- **English Store (en)**: `en_GB` (UK English)
+- **Irish Store (ie)**: `en_IE` (Irish English)
+- **French Store (fr)**: `fr_FR` (French)
+- **Italian Store (it)**: `it_IT` (Italian)
+
+#### **Static Content Deployment:**
+The setup automatically configures static content deployment for all locales:
+```bash
+bin/clinotty bin/magento setup:static-content:deploy -f
+```
+This command now deploys static content for all configured locales: `en_GB`, `en_IE`, `fr_FR`, `it_IT`, and `en_US` (admin).
 
 ### Domain Setup
 
 To add additional domains:
 
-1. Run `bin/setup-domain <your-domain>`
-2. Restart containers: `bin/restart`
+1. **Add domain to `/etc/hosts`**:
+   ```bash
+   sudo nano /etc/hosts
+   # Add: 127.0.0.1 your-domain.local
+   ```
+
+2. **Generate SSL certificate**:
+   ```bash
+   bin/setup-ssl your-domain.local
+   ```
+
+3. **Restart containers**:
+   ```bash
+   bin/restart
+   ```
 
 ## 🎨 Frontend Development
 
