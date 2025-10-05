@@ -87,13 +87,14 @@ class SetupProductAttributes implements DataPatchInterface
                 'source' => Table::class,
                 'required' => false,
                 'visible_on_front' => true,
-                'global' => ScopedAttributeInterface::SCOPE_STORE,
+                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'group' => 'General',
                 'backend' => ArrayBackend::class,
                 'sort_order' => 10,
                 'is_used_in_grid' => true,
                 'is_visible_in_grid' => true,
                 'is_filterable_in_grid' => true,
+                'is_user_defined' => true
             ]
         );
 
@@ -131,13 +132,14 @@ class SetupProductAttributes implements DataPatchInterface
                 'source' => Table::class,
                 'required' => false,
                 'visible_on_front' => true,
-                'global' => ScopedAttributeInterface::SCOPE_STORE,
+                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'group' => 'General',
                 'backend' => ArrayBackend::class,
                 'sort_order' => 20,
                 'is_used_in_grid' => true,
                 'is_visible_in_grid' => true,
                 'is_filterable_in_grid' => true,
+                'is_user_defined' => true
             ]
         );
 
@@ -174,13 +176,14 @@ class SetupProductAttributes implements DataPatchInterface
                 'source' => Table::class,
                 'required' => false,
                 'visible_on_front' => true,
-                'global' => ScopedAttributeInterface::SCOPE_STORE,
+                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'group' => 'General',
                 'backend' => ArrayBackend::class,
                 'sort_order' => 30,
                 'is_used_in_grid' => true,
                 'is_visible_in_grid' => true,
                 'is_filterable_in_grid' => true,
+                'is_user_defined' => true
             ]
         );
 
@@ -217,13 +220,14 @@ class SetupProductAttributes implements DataPatchInterface
                 'source' => Table::class,
                 'required' => false,
                 'visible_on_front' => true,
-                'global' => ScopedAttributeInterface::SCOPE_STORE,
+                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'group' => 'General',
                 'backend' => ArrayBackend::class,
                 'sort_order' => 40,
                 'is_used_in_grid' => true,
                 'is_visible_in_grid' => true,
                 'is_filterable_in_grid' => true,
+                'is_user_defined' => true
             ]
         );
 
