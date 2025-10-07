@@ -157,8 +157,11 @@ class SetupCurrencyPricing implements DataPatchInterface
         $connection = $this->moduleDataSetup->getConnection();
         $table = $this->moduleDataSetup->getTable('directory_currency_rate');
 
-        // Clear existing rates
-        $connection->delete($table, ['currency_from = ?' => 'USD']);
+        // Clear existing rates for all currencies we're setting up
+        $connection->delete($table, [
+            'currency_from IN (?)' => ['USD', 'GBP', 'EUR'],
+            'currency_to IN (?)' => ['USD', 'GBP', 'EUR']
+        ]);
 
         // Insert new rates (USD as base currency)
         $rates = [
