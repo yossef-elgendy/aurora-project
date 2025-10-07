@@ -2,18 +2,59 @@
 [ -z "$1" ] && echo "Please specify a directory or file to copy to container (ex. vendor, --all)" && exit
 
 REAL_SRC=$(cd -P "src" && pwd)
+PROJECT_ROOT=$(cd -P "$(dirname "$0")/.." && pwd)
+CONTAINER_ID=$(bin/docker-compose ps -q phpfpm | awk '{print $1}')
+
+if [ -z "$CONTAINER_ID" ]; then
+  echo "Error: phpfpm container is not running"
+  exit 1
+fi
+
 if [ "$1" == "--all" ]; then
-  docker cp "$REAL_SRC/./" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/
+  echo "Copying all files from host to container..."
+  
+  # Create a temporary tar archive to ensure all files are copied properly
+  # This method is more reliable than docker cp for large directory structures
+  cd "$REAL_SRC"
+  
+  # Create tar archive excluding .git and other unnecessary files
+  tar --exclude='.git' \
+      --exclude='node_modules' \
+      --exclude='vendor' \
+      --exclude='var/cache' \
+      --exclude='var/page_cache' \
+      --exclude='var/session' \
+      --exclude='var/tmp' \
+      --exclude='var/view_preprocessed' \
+      --exclude='generated' \
+      --exclude='pub/static' \
+      --exclude='pub/media' \
+      -czf /tmp/magento-src.tar.gz .
+  
+  # Copy the tar archive to container and extract
+  docker cp /tmp/magento-src.tar.gz "$CONTAINER_ID":/tmp/
+  docker exec "$CONTAINER_ID" tar -xzf /tmp/magento-src.tar.gz -C /var/www/html/
+  docker exec "$CONTAINER_ID" rm /tmp/magento-src.tar.gz
+  
+  # Clean up local tar file
+  rm -f /tmp/magento-src.tar.gz 2>/dev/null || true
+  
   echo "Completed copying all files from host to container"
+  # Change back to project root for fixowns and fixperms
+  cd "$PROJECT_ROOT"
   bin/fixowns
   bin/fixperms
 else
   if [ -f "$REAL_SRC/$1" ]; then
-    docker cp "$REAL_SRC/${1}" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$1"
+    echo "Copying file: $1"
+    docker cp "$REAL_SRC/${1}" "$CONTAINER_ID":/var/www/html/"$1"
   else
-    docker cp "$REAL_SRC/${1}" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$(dirname "$1")"
+    echo "Copying directory: $1"
+    docker cp "$REAL_SRC/${1}" "$CONTAINER_ID":/var/www/html/"$(dirname "$1")"
   fi
   echo "Completed copying $1 from host to container"
+  # Change back to project root for fixowns and fixperms
+  cd "$PROJECT_ROOT"
   bin/fixowns "$1"
   bin/fixperms "$1"
 fi
