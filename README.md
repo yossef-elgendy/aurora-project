@@ -28,13 +28,13 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    cp env/rabbitmq.env.example env/rabbitmq.env
    cp env/opensearch.env.example env/opensearch.env
    
-   # Edit the files with your own values
+   # Edit the files with your own values "Specify passwords or the script will throw errors."
    # Especially change passwords in db.env, magento.env, and rabbitmq.env
    ```
 
 3. **Start the Docker environment (without development tools)**
    ```bash
-   bin/start --no-dev
+   docker compose up --build --force-recreate -d
    ```
 
 4. **Copy files to container and install dependencies**
@@ -46,6 +46,9 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
 5. **Install Magento with main domain**
    ```bash
    bin/setup-install aurora.local
+   bin/magento setup:upgrade
+   bin/magento setup:static-content:deploy -f
+   bin/magento setup:di:compile
    ```
 
 6. **Add domains to /etc/hosts**
@@ -81,6 +84,15 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    - **Admin Panel**: `https://aurora.local/admin`
    - **Admin credentials**: As configured in `env/magento.env`
 
+### **Common Issues**
+1. Tried entering one of the domains but it threw 403 Forbidden issue. Here is the fix:
+   ```bash
+   docker exec aurora-project-app-1 cp /var/www/html/nginx.conf.sample /var/www/html/nginx.conf
+   docker restart aurora-project-app-1
+   ```
+   aurora-project-app-1 replace this with your nginx container name
+
+
 ## 📋 Complete Setup Checklist for New Developers
 
 - [ ] Docker Desktop installed and running
@@ -105,7 +117,7 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
 
 ```bash
 # Start/stop containers
-bin/start
+bin/start --no-dev
 bin/stop
 bin/restart
 
