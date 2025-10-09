@@ -1,10 +1,10 @@
 <?php
 /**
- * Copyright © Esoocter. All rights reserved.
+ * Copyright © Escooter. All rights reserved.
  * See LICENSE.txt for license details.
  */
 
-namespace Esoocter\Migration\Setup\Patch\Data;
+namespace Escooter\Migration\Setup\Patch\Data;
 
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -13,24 +13,25 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 
 /**
- * Data patch to configure locales for each store
+ * Data patch to update base URLs for French, Irish, and Italian stores
  */
-class ConfigureStoreLocales implements DataPatchInterface
+class UpdateStoreBaseUrls implements DataPatchInterface
 {
     /**
-     * Store code to locale mapping
+     * Store code to domain mapping
      */
-    private const STORE_LOCALES = [
-        'en' => 'en_GB',  // English Store - UK locale
-        'ie' => 'en_IE', // Irish Store - Irish locale
-        'fr' => 'fr_FR', // French Store - French locale
-        'it' => 'it_IT'  // Italian Store - Italian locale
+    private const STORE_DOMAINS = [
+        'fr' => 'aurora.fr.local',
+        'ie' => 'aurora.ie.local',
+        'it' => 'aurora.it.local'
     ];
 
     /**
-     * Configuration path for locale
+     * Configuration paths
      */
-    private const CONFIG_PATH_LOCALE = 'general/locale/code';
+    private const CONFIG_PATH_SECURE_BASE_URL = 'web/secure/base_url';
+    private const CONFIG_PATH_UNSECURE_BASE_URL = 'web/unsecure/base_url';
+    private const CONFIG_PATH_COOKIE_DOMAIN = 'web/cookie/cookie_domain';
 
     /**
      * @var ModuleDataSetupInterface
@@ -70,45 +71,71 @@ class ConfigureStoreLocales implements DataPatchInterface
         $this->moduleDataSetup->getConnection()->startSetup();
 
         try {
-            foreach (self::STORE_LOCALES as $storeCode => $locale) {
-                $this->configureStoreLocale($storeCode, $locale);
+            foreach (self::STORE_DOMAINS as $storeCode => $domain) {
+                $this->updateStoreBaseUrls($storeCode, $domain);
             }
 
             // Reinitialize stores
             $this->storeManager->reinitStores();
 
         } catch (\Exception $e) {
-            throw new \Exception('Error configuring store locales: ' . $e->getMessage());
+            throw new \Exception('Error updating store base URLs: ' . $e->getMessage());
         }
 
         $this->moduleDataSetup->getConnection()->endSetup();
     }
 
     /**
-     * Configure locale for a specific store
+     * Update base URLs for a specific store
      *
      * @param string $storeCode
-     * @param string $locale
+     * @param string $domain
      * @return void
      * @throws NoSuchEntityException
      */
-    private function configureStoreLocale($storeCode, $locale)
+    private function updateStoreBaseUrls($storeCode, $domain)
     {
         try {
             $store = $this->storeManager->getStore($storeCode);
             $storeId = $store->getId();
 
-            // Set locale for the store
-            $this->configWriter->save(
-                self::CONFIG_PATH_LOCALE,
-                $locale,
-                'stores',
-                $storeId
+            // Update secure base URL
+            $this->setStoreConfig(
+                $storeId,
+                self::CONFIG_PATH_SECURE_BASE_URL,
+                'https://' . $domain . '/'
+            );
+
+            // Update unsecure base URL
+            $this->setStoreConfig(
+                $storeId,
+                self::CONFIG_PATH_UNSECURE_BASE_URL,
+                'http://' . $domain . '/'
+            );
+
+            // Update cookie domain
+            $this->setStoreConfig(
+                $storeId,
+                self::CONFIG_PATH_COOKIE_DOMAIN,
+                $domain
             );
 
         } catch (NoSuchEntityException $e) {
             throw new \Exception("Store with code '{$storeCode}' not found: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Set store configuration value using ConfigWriter
+     *
+     * @param int $storeId
+     * @param string $path
+     * @param string $value
+     * @return void
+     */
+    private function setStoreConfig($storeId, $path, $value)
+    {
+        $this->configWriter->save($path, $value, 'stores', $storeId);
     }
 
     /**

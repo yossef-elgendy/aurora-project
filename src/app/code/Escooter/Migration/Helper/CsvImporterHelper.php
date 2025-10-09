@@ -1,10 +1,10 @@
 <?php
 /**
- * Copyright © Esoocter. All rights reserved.
+ * Copyright © Escooter. All rights reserved.
  * See LICENSE.txt for license details.
  */
 
-namespace Esoocter\Migration\Helper;
+namespace Escooter\Migration\Helper;
 
 use Magento\Framework\File\Csv;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -106,7 +106,7 @@ class CsvImporterHelper
     private function getCsvFilePath(string $filename): string
     {
         $moduleDir = $this->filesystem->getDirectoryRead(DirectoryList::APP);
-        return $moduleDir->getAbsolutePath() . 'code/Esoocter/Migration/Setup/Patch/Data/csv/' . $filename;
+        return $moduleDir->getAbsolutePath() . 'code/Escooter/Migration/Setup/Patch/Data/csv/' . $filename;
     }
 
     /**

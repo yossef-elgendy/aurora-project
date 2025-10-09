@@ -1,10 +1,10 @@
 <?php
 /**
- * Copyright © Esoocter. All rights reserved.
+ * Copyright © Escooter. All rights reserved.
  * See LICENSE.txt for license details.
  */
 
-namespace Esoocter\Migration\Helper;
+namespace Escooter\Migration\Helper;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\ProductFactory;

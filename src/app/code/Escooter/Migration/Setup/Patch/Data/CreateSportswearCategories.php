@@ -1,15 +1,15 @@
 <?php
 /**
- * Copyright © Esoocter. All rights reserved.
+ * Copyright © Escooter. All rights reserved.
  * See LICENSE.txt for license details.
  */
 
-namespace Esoocter\Migration\Setup\Patch\Data;
+namespace Escooter\Migration\Setup\Patch\Data;
 
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Esoocter\Migration\Helper\CategoryImporterHelper;
-use Esoocter\Migration\Helper\CsvImporterHelper;
+use Escooter\Migration\Helper\CategoryImporterHelper;
+use Escooter\Migration\Helper\CsvImporterHelper;
 use Psr\Log\LoggerInterface;
 
 /**

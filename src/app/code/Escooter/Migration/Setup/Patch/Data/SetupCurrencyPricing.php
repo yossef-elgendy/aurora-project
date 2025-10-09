@@ -1,10 +1,10 @@
 <?php
 /**
- * Copyright © Esoocter. All rights reserved.
+ * Copyright © Escooter. All rights reserved.
  * See LICENSE.txt for license details.
  */
 
-namespace Esoocter\Migration\Setup\Patch\Data;
+namespace Escooter\Migration\Setup\Patch\Data;
 
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -198,7 +198,7 @@ class SetupCurrencyPricing implements DataPatchInterface
     private function getCsvFilePath($filename)
     {
         $moduleDir = $this->filesystem->getDirectoryRead(DirectoryList::APP);
-        return $moduleDir->getAbsolutePath() . 'code/Esoocter/Migration/Setup/Patch/Data/csv/' . $filename;
+        return $moduleDir->getAbsolutePath() . 'code/Escooter/Migration/Setup/Patch/Data/csv/' . $filename;
     }
 
     /**

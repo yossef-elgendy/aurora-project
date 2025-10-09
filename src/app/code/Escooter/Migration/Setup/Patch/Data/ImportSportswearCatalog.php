@@ -1,18 +1,18 @@
 <?php
 /**
- * Copyright © Esoocter. All rights reserved.
+ * Copyright © Escooter. All rights reserved.
  * See LICENSE.txt for license details.
  */
 
-namespace Esoocter\Migration\Setup\Patch\Data;
+namespace Escooter\Migration\Setup\Patch\Data;
 
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\App\State;
 use Magento\Store\Model\StoreManagerInterface;
-use Esoocter\Migration\Helper\ProductImporterHelper;
-use Esoocter\Migration\Helper\ConfigurableProductImporterHelper;
-use Esoocter\Migration\Helper\CsvImporterHelper;
+use Escooter\Migration\Helper\ProductImporterHelper;
+use Escooter\Migration\Helper\ConfigurableProductImporterHelper;
+use Escooter\Migration\Helper\CsvImporterHelper;
 use Psr\Log\LoggerInterface;
 
 /**
