@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Escooter. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- Copy escooter_notes from order to invoice when invoice is saved -->
+    <event name="sales_order_invoice_save_before">
+        <observer name="escooter_checkout_copy_notes_to_invoice" instance="Escooter\Checkout\Observer\CopyEscooterNotesToInvoice"/>
+    </event>
+    
+    <!-- Copy escooter_notes from order to shipment when shipment is saved -->
+    <event name="sales_order_shipment_save_before">
+        <observer name="escooter_checkout_copy_notes_to_shipment" instance="Escooter\Checkout\Observer\CopyEscooterNotesToShipment"/>
+    </event>
+    
+    <!-- Copy escooter_notes from order to creditmemo when creditmemo is saved -->
+    <event name="sales_order_creditmemo_save_before">
+        <observer name="escooter_checkout_copy_notes_to_creditmemo" instance="Escooter\Checkout\Observer\CopyEscooterNotesToCreditmemo"/>
+    </event>
+</config>

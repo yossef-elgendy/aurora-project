@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Escooter. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <!-- Order Email Templates -->
+    <template id="sales_email_order_template" label="New Order (Custom with Escooter Notes)" file="order_new.html" type="html" module="Escooter_Checkout" area="frontend"/>
+    <template id="sales_email_order_guest_template" label="New Order for Guest (Custom with Escooter Notes)" file="order_new_guest.html" type="html" module="Escooter_Checkout" area="frontend"/>
+    
+    <!-- Invoice Email Templates -->
+    <template id="sales_email_invoice_template" label="New Invoice (Custom with Escooter Notes)" file="invoice_new.html" type="html" module="Escooter_Checkout" area="frontend"/>
+    <template id="sales_email_invoice_guest_template" label="New Invoice for Guest (Custom with Escooter Notes)" file="invoice_new_guest.html" type="html" module="Escooter_Checkout" area="frontend"/>
+    
+    <!-- Shipment Email Templates -->
+    <template id="sales_email_shipment_template" label="New Shipment (Custom with Escooter Notes)" file="shipment_new.html" type="html" module="Escooter_Checkout" area="frontend"/>
+    <template id="sales_email_shipment_guest_template" label="New Shipment for Guest (Custom with Escooter Notes)" file="shipment_new_guest.html" type="html" module="Escooter_Checkout" area="frontend"/>
+    
+    <!-- Credit Memo Email Templates -->
+    <template id="sales_email_creditmemo_template" label="New Credit Memo (Custom with Escooter Notes)" file="creditmemo_new.html" type="html" module="Escooter_Checkout" area="frontend"/>
+    <template id="sales_email_creditmemo_guest_template" label="New Credit Memo for Guest (Custom with Escooter Notes)" file="creditmemo_new_guest.html" type="html" module="Escooter_Checkout" area="frontend"/>
+</config>

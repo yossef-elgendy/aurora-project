@@ -14,5 +14,12 @@
                 <aspect name="to_order_address"/>
             </field>
         </fieldset>
+        <fieldset id="sales_convert_order">
+            <field name="escooter_notes">
+                <aspect name="to_invoice"/>
+                <aspect name="to_shipment"/>
+                <aspect name="to_cm"/>
+            </field>
+        </fieldset>
     </scope>
 </config>

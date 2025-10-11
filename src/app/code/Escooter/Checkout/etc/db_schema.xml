@@ -13,4 +13,13 @@
     <table name="sales_order_address">
         <column xsi:type="text" name="escooter_notes" nullable="true" comment="Escooter Shipping Notes"/>
     </table>
+    <table name="sales_invoice">
+        <column xsi:type="text" name="escooter_notes" nullable="true" comment="Escooter Shipping Notes"/>
+    </table>
+    <table name="sales_shipment">
+        <column xsi:type="text" name="escooter_notes" nullable="true" comment="Escooter Shipping Notes"/>
+    </table>
+    <table name="sales_creditmemo">
+        <column xsi:type="text" name="escooter_notes" nullable="true" comment="Escooter Shipping Notes"/>
+    </table>
 </schema>
