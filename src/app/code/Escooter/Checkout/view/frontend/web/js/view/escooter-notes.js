@@ -8,8 +8,9 @@ define([
     'jquery',
     'ko',
     'uiComponent',
-    'Magento_Checkout/js/model/quote'
-], function ($, ko, Component, quote) {
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/checkout-data'
+], function ($, ko, Component, quote, checkoutData) {
     'use strict';
 
     return Component.extend({
@@ -24,18 +25,38 @@ define([
 
             this.escooterNotes.subscribe(function (newValue) {
                 var shippingAddress = quote.shippingAddress();
+                var checkoutShippingAddress = checkoutData.getShippingAddressFromData();
+
                 if (shippingAddress) {
                     if (!shippingAddress.extension_attributes) {
                         shippingAddress.extension_attributes = {};
                     }
+
                     shippingAddress.extension_attributes.escooter_notes = newValue;
                     quote.shippingAddress(shippingAddress);
+                }
+
+                if (checkoutShippingAddress) {
+                    if (!checkoutShippingAddress.extension_attributes) {
+                        checkoutShippingAddress.extension_attributes = {};
+                    }
+
+                    checkoutShippingAddress.extension_attributes.escooter_notes = newValue;
+                    checkoutData.setShippingAddressFromData(checkoutShippingAddress);
                 }
             });
 
             var shippingAddress = quote.shippingAddress();
+            var checkoutShippingAddress = checkoutData.getShippingAddressFromData();
+
             if (shippingAddress && shippingAddress.extension_attributes && shippingAddress.extension_attributes.escooter_notes) {
                 this.escooterNotes(shippingAddress.extension_attributes.escooter_notes);
+
+                return;
+            }
+
+            if (checkoutShippingAddress && checkoutShippingAddress.extension_attributes && checkoutShippingAddress.extension_attributes.escooter_notes) {
+                this.escooterNotes(checkoutShippingAddress.extension_attributes.escooter_notes);
             }
         }
     });
