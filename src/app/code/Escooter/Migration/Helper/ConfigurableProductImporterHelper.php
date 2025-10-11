@@ -14,12 +14,12 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\ConfigurableProduct\Api\LinkManagementInterface;
-use Magento\ConfigurableProduct\Api\OptionRepositoryInterface;
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable as ConfigurableType;
-use Magento\ConfigurableProduct\Helper\Product\Options\Factory as OptionFactory;
+use Magento\ConfigurableProduct\Helper\Product\Options\Factory as ConfigurableOptionsFactory;
 use Magento\Eav\Model\Config as EavConfig;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Catalog\Api\Data\ProductExtensionFactory;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -43,21 +43,6 @@ class ConfigurableProductImporterHelper
     private $linkManagement;
 
     /**
-     * @var OptionRepositoryInterface
-     */
-    private $optionRepository;
-
-    /**
-     * @var ConfigurableType
-     */
-    private $configurableType;
-
-    /**
-     * @var OptionFactory
-     */
-    private $optionFactory;
-
-    /**
      * @var EavConfig
      */
     private $eavConfig;
@@ -73,6 +58,21 @@ class ConfigurableProductImporterHelper
     private $categoryCollectionFactory;
 
     /**
+     * @var ConfigurableOptionsFactory
+     */
+    private $configurableOptionsFactory;
+
+    /**
+     * @var ProductExtensionFactory
+     */
+    private $productExtensionFactory;
+
+    /**
+     * @var StockRegistryInterface
+     */
+    private $stockRegistry;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -81,35 +81,35 @@ class ConfigurableProductImporterHelper
      * @param ProductRepositoryInterface $productRepository
      * @param ProductFactory $productFactory
      * @param LinkManagementInterface $linkManagement
-     * @param OptionRepositoryInterface $optionRepository
-     * @param ConfigurableType $configurableType
-     * @param OptionFactory $optionFactory
      * @param EavConfig $eavConfig
      * @param StoreManagerInterface $storeManager
      * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @param ConfigurableOptionsFactory $configurableOptionsFactory
+     * @param ProductExtensionFactory $productExtensionFactory
+     * @param StockRegistryInterface $stockRegistry
      * @param LoggerInterface $logger
      */
     public function __construct(
         ProductRepositoryInterface $productRepository,
         ProductFactory $productFactory,
         LinkManagementInterface $linkManagement,
-        OptionRepositoryInterface $optionRepository,
-        ConfigurableType $configurableType,
-        OptionFactory $optionFactory,
         EavConfig $eavConfig,
         StoreManagerInterface $storeManager,
         CategoryCollectionFactory $categoryCollectionFactory,
+        ConfigurableOptionsFactory $configurableOptionsFactory,
+        ProductExtensionFactory $productExtensionFactory,
+        StockRegistryInterface $stockRegistry,
         LoggerInterface $logger
     ) {
         $this->productRepository = $productRepository;
         $this->productFactory = $productFactory;
         $this->linkManagement = $linkManagement;
-        $this->optionRepository = $optionRepository;
-        $this->configurableType = $configurableType;
-        $this->optionFactory = $optionFactory;
         $this->eavConfig = $eavConfig;
         $this->storeManager = $storeManager;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->configurableOptionsFactory = $configurableOptionsFactory;
+        $this->productExtensionFactory = $productExtensionFactory;
+        $this->stockRegistry = $stockRegistry;
         $this->logger = $logger;
     }
 
@@ -158,13 +158,8 @@ class ConfigurableProductImporterHelper
             // Set custom attributes
             $this->setProductAttributes($product, $data);
 
-            // Save the product first (required for configurable products)
+            // Save the product (configurable options will be set during association)
             $this->productRepository->save($product);
-            
-            // Set configurable options if specified
-            if (isset($data['configurable_attributes']) && !empty($data['configurable_attributes'])) {
-                $this->setConfigurableOptions($product, $data['configurable_attributes']);
-            }
             
             $this->logger->info("Created configurable product: {$data['sku']}");
 
@@ -252,33 +247,67 @@ class ConfigurableProductImporterHelper
                 throw new \Exception("Configurable product {$parentSku} not found or not configurable type");
             }
 
-            // Ensure configurable product has configurable attributes set
-            $this->ensureConfigurableAttributes($configurableProduct, $variationSkus);
-
-            // Get existing children
-            $existingChildren = $this->linkManagement->getChildren($parentSku);
-            $existingChildSkus = [];
-            foreach ($existingChildren as $child) {
-                $existingChildSkus[] = $child->getSku();
-            }
-
-            // Add new children
-            $newChildren = array_diff($variationSkus, $existingChildSkus);
-            foreach ($newChildren as $variationSku) {
+            // Load all variation products
+            $variationProducts = [];
+            foreach ($variationSkus as $variationSku) {
                 try {
-                    $this->linkManagement->addChild($parentSku, $variationSku);
-                    $this->logger->info("Associated variation {$variationSku} with configurable product {$parentSku}");
+                    $variationProducts[] = $this->productRepository->get($variationSku);
                 } catch (\Exception $e) {
-                    $this->logger->warning("Could not associate variation {$variationSku} with {$parentSku}: " . $e->getMessage());
+                    $this->logger->warning("Could not load variation product {$variationSku}: " . $e->getMessage());
                 }
             }
 
-            // Save the configurable product to update associations
-            $this->productRepository->save($configurableProduct);
+            if (empty($variationProducts)) {
+                throw new \Exception("No valid variation products found for {$parentSku}");
+            }
 
-            $this->logger->info("Associated " . count($newChildren) . " new variations with configurable product: {$parentSku}");
+            // Detect which attributes vary among the children
+            $configurableAttributeCodes = $this->detectConfigurableAttributes($variationProducts);
+
+            if (empty($configurableAttributeCodes)) {
+                throw new \Exception("No configurable attributes detected for {$parentSku}");
+            }
+
+            $this->logger->info("Detected configurable attributes for {$parentSku}: " . implode(', ', $configurableAttributeCodes));
+
+            // Step 1: Create and set configurable product options
+            $configurableOptions = $this->buildConfigurableOptions($configurableAttributeCodes, $variationProducts);
+
+            // Step 2: Link child product IDs
+            $childProductIds = [];
+            foreach ($variationProducts as $variationProduct) {
+                $childProductIds[] = $variationProduct->getId();
+            }
+
+            // Step 3: Set extension attributes
+            $extensionAttributes = $configurableProduct->getExtensionAttributes();
+            if ($extensionAttributes === null) {
+                $extensionAttributes = $this->productExtensionFactory->create();
+            }
+
+            $extensionAttributes->setConfigurableProductOptions($configurableOptions);
+            $extensionAttributes->setConfigurableProductLinks($childProductIds);
+            $configurableProduct->setExtensionAttributes($extensionAttributes);
+
+            $this->logger->info("Attempting to save configurable product {$parentSku} with " . count($configurableOptions) . " options and " . count($childProductIds) . " child products");
+
+            // Save the configurable product
+            try {
+                $this->productRepository->save($configurableProduct);
+                $this->logger->info("Successfully saved configurable product {$parentSku}");
+            } catch (\Exception $e) {
+                $this->logger->error("Failed to save configurable product {$parentSku}: " . $e->getMessage());
+                $this->logger->error("Stack trace: " . $e->getTraceAsString());
+                throw $e;
+            }
+
+            // Step 4: Set stock for configurable product
+            $this->setConfigurableStock($parentSku);
+
+            $this->logger->info("Successfully associated " . count($variationProducts) . " variations with configurable product: {$parentSku}");
         } catch (\Exception $e) {
             $this->logger->error("Error associating variations to {$parentSku}: " . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -358,112 +387,159 @@ class ConfigurableProductImporterHelper
     }
 
     /**
-     * Ensure configurable product has the necessary configurable attributes
+     * Detect configurable attributes from variation products
+     * Returns valid configurable attributes that vary among children
      *
-     * @param Product $configurableProduct
-     * @param array $variationSkus
-     * @return void
+     * @param array $variationProducts
+     * @return array
      */
-    private function ensureConfigurableAttributes(Product $configurableProduct, array $variationSkus): void
+    private function detectConfigurableAttributes(array $variationProducts): array
     {
-        try {
-            // Get all unique attributes from variations
-            $configurableAttributes = [];
-            
-            foreach ($variationSkus as $variationSku) {
-                try {
-                    /** @var Product $variationProduct */
-                    $variationProduct = $this->productRepository->get($variationSku);
-                    
-                    // Check for size attribute
-                    if ($variationProduct->getData('size')) {
-                        $sizeAttribute = $this->eavConfig->getAttribute(Product::ENTITY, 'size');
-                        if ($sizeAttribute->getId()) {
-                            $configurableAttributes[] = $sizeAttribute->getId();
-                        }
-                    }
-                    
-                    // Check for color attribute
-                    if ($variationProduct->getData('color')) {
-                        $colorAttribute = $this->eavConfig->getAttribute(Product::ENTITY, 'color');
-                        if ($colorAttribute->getId()) {
-                            $configurableAttributes[] = $colorAttribute->getId();
-                        }
-                    }
-                    
-                    // Check for sport_type attribute
-                    if ($variationProduct->getData('sport_type')) {
-                        $sportTypeAttribute = $this->eavConfig->getAttribute(Product::ENTITY, 'sport_type');
-                        if ($sportTypeAttribute->getId()) {
-                            $configurableAttributes[] = $sportTypeAttribute->getId();
-                        }
-                    }
-
-                    // Check for material attribute
-                    if ($variationProduct->getData('material')) {
-                        $materialAttribute = $this->eavConfig->getAttribute(Product::ENTITY, 'material');
-                        if ($materialAttribute->getId()) {
-                            $configurableAttributes[] = $materialAttribute->getId();
-                        }
-                    }
-
-                } catch (\Exception $e) {
-                    $this->logger->warning("Could not fetch variation product {$variationSku}: " . $e->getMessage());
+        // Only use the 4 attributes we created through our data patch
+        $configurableAttributeCodes = ['size', 'color', 'sport_type', 'material'];
+        $detectedAttributes = [];
+        
+        // Check each attribute to see if it varies and is valid
+        foreach ($configurableAttributeCodes as $attributeCode) {
+            $values = [];
+            foreach ($variationProducts as $product) {
+                $value = $product->getData($attributeCode);
+                if ($value) {
+                    $values[] = $value;
                 }
             }
 
-            // Remove duplicates
-            $configurableAttributes = array_unique($configurableAttributes);
-
-            if (!empty($configurableAttributes)) {
-                // Set the configurable attributes
-                $configurableProduct->setCanSaveConfigurableAttributes(true);
-                $configurableProduct->setAffectConfigurableProductAttributes($configurableAttributes);
-
-                // Save the product with configurable attributes
-                $this->productRepository->save($configurableProduct);
-
-                $this->logger->info("Set configurable attributes for {$configurableProduct->getSku()}: " . implode(',', $configurableAttributes));
+            // If this attribute has different values across variations, it could be configurable
+            $uniqueValues = array_unique($values);
+            if (count($uniqueValues) > 1) {
+                // Validate that the attribute can be used for configurable products
+                try {
+                    $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $attributeCode);
+                    if ($attribute->getId() && 
+                        $attribute->getIsVisible() && 
+                        $attribute->usesSource() &&
+                        $attribute->getIsGlobal() == \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL) {
+                        
+                        $this->logger->info("Detected varying attribute '{$attributeCode}' with " . count($uniqueValues) . " unique values");
+                        $detectedAttributes[] = $attributeCode;
+                    } else {
+                        $this->logger->warning("Attribute '{$attributeCode}' varies but doesn't meet configurable requirements, skipping");
+                    }
+                } catch (\Exception $e) {
+                    $this->logger->error("Error validating attribute '{$attributeCode}': " . $e->getMessage());
+                }
             }
-        } catch (\Exception $e) {
-            $this->logger->error("Error ensuring configurable attributes for {$configurableProduct->getSku()}: " . $e->getMessage());
         }
+
+        if (!empty($detectedAttributes)) {
+            $this->logger->info("Using " . count($detectedAttributes) . " configurable attribute(s): " . implode(', ', $detectedAttributes));
+        }
+
+        return $detectedAttributes;
     }
 
     /**
-     * Set configurable options for the product
+     * Build configurable product options
      *
-     * @param Product $product
-     * @param string $configurableAttributesString
-     * @return void
+     * @param array $attributeCodes
+     * @param array $variationProducts
+     * @return array
      */
-    private function setConfigurableOptions(Product $product, string $configurableAttributesString): void
+    private function buildConfigurableOptions(array $attributeCodes, array $variationProducts): array
+    {
+        $configurableAttributesData = [];
+        $position = 0;
+
+        foreach ($attributeCodes as $attributeCode) {
+            try {
+                $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $attributeCode);
+                if (!$attribute->getId()) {
+                    $this->logger->error("Attribute {$attributeCode} not found");
+                    continue;
+                }
+
+                // Log attribute properties for debugging
+                $this->logger->info("Building options for attribute {$attributeCode}: is_global=" . $attribute->getIsGlobal() . 
+                    ", is_visible=" . $attribute->getIsVisible() . 
+                    ", uses_source=" . ($attribute->usesSource() ? '1' : '0'));
+
+                // Collect all unique option values for this attribute from variations
+                $attributeValues = [];
+                
+                foreach ($variationProducts as $variationProduct) {
+                    $optionId = $variationProduct->getData($attributeCode);
+                    if ($optionId && !isset($attributeValues[$optionId])) {
+                        $attributeValues[$optionId] = [
+                            'label' => $this->getOptionLabel($attribute, $optionId),
+                            'attribute_id' => $attribute->getId(),
+                            'value_index' => $optionId,
+                        ];
+                    }
+                }
+
+                if (empty($attributeValues)) {
+                    continue;
+                }
+
+                // Build configurable attribute data
+                $configurableAttributesData[] = [
+                    'attribute_id' => $attribute->getId(),
+                    'code' => $attribute->getAttributeCode(),
+                    'label' => $attribute->getStoreLabel(),
+                    'position' => $position++,
+                    'values' => array_values($attributeValues),
+                ];
+
+                $this->logger->info("Built configurable option for attribute: {$attributeCode} with " . count($attributeValues) . " values");
+            } catch (\Exception $e) {
+                $this->logger->error("Error building configurable option for {$attributeCode}: " . $e->getMessage());
+            }
+        }
+
+        // Use the Factory to create configurable options from the data
+        return $this->configurableOptionsFactory->create($configurableAttributesData);
+    }
+
+    /**
+     * Get option label by attribute and option ID
+     *
+     * @param \Magento\Eav\Model\Entity\Attribute $attribute
+     * @param int $optionId
+     * @return string
+     */
+    private function getOptionLabel($attribute, $optionId): string
     {
         try {
-            $configurableAttributeCodes = explode(',', $configurableAttributesString);
-            $configurableAttributeCodes = array_map('trim', $configurableAttributeCodes);
-            
-            $configurableAttributes = [];
-            
-            foreach ($configurableAttributeCodes as $attributeCode) {
-                $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $attributeCode);
-                if ($attribute->getId()) {
-                    $configurableAttributes[] = $attribute->getId();
+            $options = $attribute->getSource()->getAllOptions();
+            foreach ($options as $option) {
+                if ($option['value'] == $optionId) {
+                    return $option['label'];
                 }
             }
-            
-            if (!empty($configurableAttributes)) {
-                // Set the configurable attributes
-                $product->setCanSaveConfigurableAttributes(true);
-                $product->setAffectConfigurableProductAttributes($configurableAttributes);
-                
-                // Save the product with configurable attributes
-                $this->productRepository->save($product);
-                
-                $this->logger->info("Set configurable options for {$product->getSku()}: " . implode(',', $configurableAttributeCodes));
-            }
         } catch (\Exception $e) {
-            $this->logger->error("Error setting configurable options for {$product->getSku()}: " . $e->getMessage());
+            $this->logger->warning("Could not get option label for attribute {$attribute->getAttributeCode()}: " . $e->getMessage());
+        }
+        return (string)$optionId;
+    }
+
+    /**
+     * Set stock for configurable product
+     *
+     * @param string $sku
+     * @return void
+     */
+    private function setConfigurableStock(string $sku): void
+    {
+        try {
+            $stockItem = $this->stockRegistry->getStockItemBySku($sku);
+            $stockItem->setIsInStock(true);
+            $stockItem->setQty(1);
+            $stockItem->setManageStock(false);
+            $this->stockRegistry->updateStockItemBySku($sku, $stockItem);
+
+            $this->logger->info("Set stock for configurable product: {$sku}");
+        } catch (\Exception $e) {
+            $this->logger->warning("Could not set stock for configurable product {$sku}: " . $e->getMessage());
         }
     }
 

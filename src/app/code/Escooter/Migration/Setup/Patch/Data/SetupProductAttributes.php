@@ -12,7 +12,6 @@ use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Catalog\Model\Product;
-use Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend;
 use Magento\Eav\Model\Entity\Attribute\Source\Table;
 
 /**
@@ -77,26 +76,62 @@ class SetupProductAttributes implements DataPatchInterface
      */
     private function createSizeAttribute($eavSetup)
     {
-        $eavSetup->addAttribute(
-            Product::ENTITY,
-            'size',
-            [
-                'type' => 'varchar',
-                'label' => 'Size',
-                'input' => 'select',
-                'source' => Table::class,
-                'required' => false,
-                'visible_on_front' => true,
-                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-                'group' => 'General',
-                'backend' => ArrayBackend::class,
-                'sort_order' => 10,
-                'is_used_in_grid' => true,
-                'is_visible_in_grid' => true,
-                'is_filterable_in_grid' => true,
-                'is_user_defined' => true
-            ]
-        );
+        // Check if attribute already exists
+        $attributeId = $eavSetup->getAttributeId(Product::ENTITY, 'size');
+        
+        if ($attributeId) {
+            // Update existing attribute to ensure it has correct properties
+            $eavSetup->updateAttribute(
+                Product::ENTITY,
+                'size',
+                [
+                    'type' => 'int',
+                    'label' => 'Size',
+                    'input' => 'select',
+                    'source' => Table::class,
+                    'required' => false,
+                    'user_defined' => true,  // Must be user_defined, not is_user_defined
+                    'system' => false,  // Not a system attribute
+                    'visible' => true,
+                    'visible_on_front' => true,
+                    'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+                    'is_used_in_grid' => true,
+                    'is_visible_in_grid' => true,
+                    'is_filterable_in_grid' => true,
+                    'used_for_promo_rules' => true,
+                    'is_filterable' => 1,
+                    'is_filterable_in_search' => 1,
+                    'used_in_product_listing' => true
+                ]
+            );
+        } else {
+            // Create new attribute
+            $eavSetup->addAttribute(
+                Product::ENTITY,
+                'size',
+                [
+                    'type' => 'int',
+                    'label' => 'Size',
+                    'input' => 'select',
+                    'source' => Table::class,
+                    'required' => false,
+                    'user_defined' => true,  // Must be user_defined, not is_user_defined
+                    'system' => false,  // Not a system attribute
+                    'visible' => true,
+                    'visible_on_front' => true,
+                    'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+                    'group' => 'General',
+                    'sort_order' => 10,
+                    'is_used_in_grid' => true,
+                    'is_visible_in_grid' => true,
+                    'is_filterable_in_grid' => true,
+                    'used_for_promo_rules' => true,
+                    'is_filterable' => 1,
+                    'is_filterable_in_search' => 1,
+                    'used_in_product_listing' => true
+                ]
+            );
+        }
 
         $attributeId = $eavSetup->getAttributeId(Product::ENTITY, 'size');
         $sizeOptions = [
@@ -126,20 +161,25 @@ class SetupProductAttributes implements DataPatchInterface
             Product::ENTITY,
             'color',
             [
-                'type' => 'varchar',
+                'type' => 'int',
                 'label' => 'Color',
                 'input' => 'select',
                 'source' => Table::class,
                 'required' => false,
+                'user_defined' => true,  // Must be user_defined, not is_user_defined
+                'system' => false,  // Not a system attribute
+                'visible' => true,
                 'visible_on_front' => true,
                 'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'group' => 'General',
-                'backend' => ArrayBackend::class,
                 'sort_order' => 20,
                 'is_used_in_grid' => true,
                 'is_visible_in_grid' => true,
                 'is_filterable_in_grid' => true,
-                'is_user_defined' => true
+                'used_for_promo_rules' => true,
+                'is_filterable' => 1,
+                'is_filterable_in_search' => 1,
+                'used_in_product_listing' => true
             ]
         );
 
@@ -170,20 +210,25 @@ class SetupProductAttributes implements DataPatchInterface
             Product::ENTITY,
             'sport_type',
             [
-                'type' => 'varchar',
+                'type' => 'int',
                 'label' => 'Sport Type',
                 'input' => 'select',
                 'source' => Table::class,
                 'required' => false,
+                'user_defined' => true,  // Must be user_defined, not is_user_defined
+                'system' => false,  // Not a system attribute
+                'visible' => true,
                 'visible_on_front' => true,
                 'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'group' => 'General',
-                'backend' => ArrayBackend::class,
                 'sort_order' => 30,
                 'is_used_in_grid' => true,
                 'is_visible_in_grid' => true,
                 'is_filterable_in_grid' => true,
-                'is_user_defined' => true
+                'used_for_promo_rules' => true,
+                'is_filterable' => 1,
+                'is_filterable_in_search' => 1,
+                'used_in_product_listing' => true
             ]
         );
 
@@ -214,20 +259,25 @@ class SetupProductAttributes implements DataPatchInterface
             Product::ENTITY,
             'material',
             [
-                'type' => 'varchar',
+                'type' => 'int',
                 'label' => 'Material',
                 'input' => 'select',
                 'source' => Table::class,
                 'required' => false,
+                'user_defined' => true,  // Must be user_defined, not is_user_defined
+                'system' => false,  // Not a system attribute
+                'visible' => true,
                 'visible_on_front' => true,
                 'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'group' => 'General',
-                'backend' => ArrayBackend::class,
                 'sort_order' => 40,
                 'is_used_in_grid' => true,
                 'is_visible_in_grid' => true,
                 'is_filterable_in_grid' => true,
-                'is_user_defined' => true
+                'used_for_promo_rules' => true,
+                'is_filterable' => 1,
+                'is_filterable_in_search' => 1,
+                'used_in_product_listing' => true
             ]
         );
 
