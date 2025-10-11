@@ -6,6 +6,10 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Preferences to extend Address models -->
+    <preference for="Magento\Quote\Model\Quote\Address" type="Escooter\Checkout\Model\Quote\Address"/>
+    <preference for="Magento\Sales\Model\Order\Address" type="Escooter\Checkout\Model\Order\Address"/>
+
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="escooter_checkout_address_plugin" type="Escooter\Checkout\Plugin\Model\AddEscooterNotes" sortOrder="10"/>
     </type>

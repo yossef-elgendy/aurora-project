@@ -64,15 +64,17 @@ class AddEscooterNotes
                 $extensionAttributes = $shippingAddress->getExtensionAttributes();
 
                 if ($extensionAttributes->getEscooterNotes() !== null) {
+                    $escooterNotes = $extensionAttributes->getEscooterNotes();
+                    
                     // Set the escooter_notes on the shipping address
                     if ($shippingAddress instanceof Address) {
-                        $shippingAddress->setData('escooter_notes', $extensionAttributes->getEscooterNotes());
+                        $shippingAddress->setEscooterNotes($escooterNotes);
                     }
 
                     // Also set it on the quote's shipping address
                     $quoteShippingAddress = $quote->getShippingAddress();
                     if ($quoteShippingAddress) {
-                        $quoteShippingAddress->setData('escooter_notes', $extensionAttributes->getEscooterNotes());
+                        $quoteShippingAddress->setEscooterNotes($escooterNotes);
                     }
                 }
             }
