@@ -13,6 +13,16 @@ This module adds a custom field called `escooter_notes` to the Magento 2 checkou
 - Adds the field to the order grid in the admin panel
 - Stores the field value in the database for quote addresses, orders, invoices, shipments, and credit memos
 
+## Admin Access (Development)
+
+If you want to access the admin account without two-factor authentication (for development purposes only), execute this command first:
+
+```bash
+bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth Magento_TwoFactorAuth
+```
+
+**Note:** Only disable two-factor authentication in development environments. It should remain enabled in production for security.
+
 ## Usage
 
 The escooter_notes field will appear as a textarea in the shipping step of the checkout process. Customers can enter notes related to their escooter order, and this information will be saved with the order.
