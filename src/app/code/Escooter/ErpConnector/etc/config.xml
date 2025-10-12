@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Escooter. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <erpconnector>
+            <general>
+                <enabled>1</enabled>
+                <immediate_sync_on_invoice>1</immediate_sync_on_invoice>
+                <debug>0</debug>
+            </general>
+            <cron>
+                <enabled>1</enabled>
+                <schedule>0 * * * *</schedule>
+            </cron>
+            <erp_api>
+                <timeout>30</timeout>
+            </erp_api>
+            <retry>
+                <max_attempts>5</max_attempts>
+                <base_delay_seconds>60</base_delay_seconds>
+            </retry>
+        </erpconnector>
+    </default>
+</config>
+

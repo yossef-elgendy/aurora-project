@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Escooter. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Preferences -->
+    <preference for="Escooter\ErpConnector\Api\Data\SyncInterface" type="Escooter\ErpConnector\Model\Sync"/>
+    <preference for="Escooter\ErpConnector\Api\Data\ErpResponseInterface" type="Escooter\ErpConnector\Model\ErpResponse"/>
+    <preference for="Escooter\ErpConnector\Api\Data\MockStockItemInterface" type="Escooter\ErpConnector\Model\Data\MockStockItem"/>
+    <preference for="Escooter\ErpConnector\Api\SyncRepositoryInterface" type="Escooter\ErpConnector\Model\SyncRepository"/>
+    <preference for="Escooter\ErpConnector\Api\ErpClientInterface" type="Escooter\ErpConnector\Model\ErpClient"/>
+    <preference for="Escooter\ErpConnector\Api\SyncManagementInterface" type="Escooter\ErpConnector\Model\SyncManagement"/>
+
+    <!-- Virtual Types for Search Results -->
+    <virtualType name="Escooter\ErpConnector\Model\ResourceModel\Sync\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vendor_erp_sync</argument>
+            <argument name="resourceModel" xsi:type="string">Escooter\ErpConnector\Model\ResourceModel\Sync</argument>
+        </arguments>
+    </virtualType>
+</config>
