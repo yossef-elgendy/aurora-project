@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Escooter. All rights reserved.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <!-- Webhook: Process ERP order confirmation -->
+    <route url="/V1/erpconnector/webhook/:orderIncrementId" method="POST">
+        <service class="Escooter\ErpConnector\Api\SyncManagementInterface" method="processWebhook"/>
+        <resources>
+            <resource ref="Escooter_ErpConnector::webhook"/>
+        </resources>
+    </route>
+
+    <!-- Mock endpoint: Stock update -->
+    <route url="/V1/erpconnector/mockupdatestock" method="POST">
+        <service class="Escooter\ErpConnector\Api\SyncManagementInterface" method="mockUpdateStock"/>
+        <resources>
+            <resource ref="Escooter_ErpConnector::mockstock"/>
+        </resources>
+    </route>
+
+    <!-- Internal API: Trigger order sync -->
+    <route url="/V1/erpconnector/syncorder/:orderIncrementId" method="POST">
+        <service class="Escooter\ErpConnector\Api\SyncManagementInterface" method="syncOrder"/>
+        <resources>
+            <resource ref="Escooter_ErpConnector::syncorder"/>
+        </resources>
+    </route>
+
+    <!-- Internal API: Resync order -->
+    <route url="/V1/erpconnector/resyncorder/:orderIncrementId" method="POST">
+        <service class="Escooter\ErpConnector\Api\SyncManagementInterface" method="resyncOrder"/>
+        <resources>
+            <resource ref="Escooter_ErpConnector::resyncorder"/>
+        </resources>
+    </route>
+
+    <!-- Internal API: Get order sync status -->
+    <route url="/V1/erpconnector/syncstatus/:orderIncrementId" method="GET">
+        <service class="Escooter\ErpConnector\Api\SyncManagementInterface" method="getSyncStatus"/>
+        <resources>
+            <resource ref="Escooter_ErpConnector::viewstatus"/>
+        </resources>
+    </route>
+
+</routes>

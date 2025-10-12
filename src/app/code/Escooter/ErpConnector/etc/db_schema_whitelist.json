@@ -1,0 +1,34 @@
+{
+    "vendor_erp_sync": {
+        "column": {
+            "sync_id": true,
+            "order_id": true,
+            "order_increment_id": true,
+            "status": true,
+            "attempts": true,
+            "max_attempts": true,
+            "last_attempt_at": true,
+            "next_attempt_at": true,
+            "last_error": true,
+            "erp_reference": true,
+            "idempotency_key": true,
+            "payload": true,
+            "response": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "VENDOR_ERP_SYNC_ORDER_ID": true,
+            "VENDOR_ERP_SYNC_ORDER_INCREMENT_ID": true,
+            "VENDOR_ERP_SYNC_STATUS": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "erp_synced": true
+        }
+    }
+}

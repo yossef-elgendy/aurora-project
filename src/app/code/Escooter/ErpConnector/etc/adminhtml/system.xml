@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Escooter. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="escooter" translate="label" sortOrder="200">
+            <label>Escooter</label>
+        </tab>
+        <section id="erpconnector" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>ERP Connector</label>
+            <tab>escooter</tab>
+            <resource>Escooter_ErpConnector::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Settings</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable ERP Connector</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable or disable the ERP synchronization module</comment>
+                </field>
+                <field id="immediate_sync_on_invoice" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Immediate Sync on Invoice</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Attempt immediate sync when invoice is created (yes) or queue for cron (no)</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="debug" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Debug Mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable detailed logging for debugging purposes</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="cron" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Cron Settings</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Cron Sync</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable automatic cron job to sync pending orders</comment>
+                    <depends>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="schedule" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cron Schedule</label>
+                    <comment>Cron expression (e.g., "0 * * * *" for every hour)</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="erp_api" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>ERP API Configuration</label>
+                <field id="base_url" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>ERP API Base URL</label>
+                    <comment>Base URL for ERP API endpoint (e.g., https://erp.example.com/api)</comment>
+                    <depends>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="api_key" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>ERP API Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>API key for authenticating with ERP system</comment>
+                    <depends>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="hmac_secret" translate="label comment" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>HMAC Secret</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>Shared secret for HMAC signature validation</comment>
+                    <depends>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="timeout" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>API Timeout (seconds)</label>
+                    <comment>HTTP request timeout in seconds</comment>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                    <depends>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="retry" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Retry Configuration</label>
+                <field id="max_attempts" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Attempts</label>
+                    <comment>Maximum number of retry attempts before marking as failed</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="base_delay_seconds" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Base Delay (seconds)</label>
+                    <comment>Base delay in seconds for exponential backoff calculation</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="erpconnector/general/enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
