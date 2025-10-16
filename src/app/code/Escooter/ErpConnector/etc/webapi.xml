@@ -15,14 +15,6 @@
         </resources>
     </route>
 
-    <!-- Mock endpoint: Stock update -->
-    <route url="/V1/erpconnector/mockupdatestock" method="POST">
-        <service class="Escooter\ErpConnector\Api\SyncManagementInterface" method="mockUpdateStock"/>
-        <resources>
-            <resource ref="Escooter_ErpConnector::mockstock"/>
-        </resources>
-    </route>
-
     <!-- Internal API: Trigger order sync -->
     <route url="/V1/erpconnector/syncorder/:orderIncrementId" method="POST">
         <service class="Escooter\ErpConnector\Api\SyncManagementInterface" method="syncOrder"/>
