@@ -9,6 +9,9 @@
     <preference for="Escooter\ErpConnector\Api\Data\SyncInterface" type="Escooter\ErpConnector\Model\Sync"/>
     <preference for="Escooter\ErpConnector\Api\Data\ErpResponseInterface" type="Escooter\ErpConnector\Model\ErpResponse"/>
     <preference for="Escooter\ErpConnector\Api\Data\MockStockItemInterface" type="Escooter\ErpConnector\Model\Data\MockStockItem"/>
+    <preference for="Escooter\ErpConnector\Api\Data\SyncOrderResponseInterface" type="Escooter\ErpConnector\Model\Response\SyncOrderResponse"/>
+    <preference for="Escooter\ErpConnector\Api\Data\SyncStatusResponseInterface" type="Escooter\ErpConnector\Model\Response\SyncStatusResponse"/>
+    <preference for="Escooter\ErpConnector\Api\Data\WebhookResponseInterface" type="Escooter\ErpConnector\Model\Response\WebhookResponse"/>
     <preference for="Escooter\ErpConnector\Api\SyncRepositoryInterface" type="Escooter\ErpConnector\Model\SyncRepository"/>
     <preference for="Escooter\ErpConnector\Api\ErpClientInterface" type="Escooter\ErpConnector\Model\ErpClient"/>
     <preference for="Escooter\ErpConnector\Api\SyncManagementInterface" type="Escooter\ErpConnector\Model\SyncManagement"/>

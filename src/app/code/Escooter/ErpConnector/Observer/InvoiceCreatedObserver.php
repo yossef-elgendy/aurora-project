@@ -66,7 +66,7 @@ class InvoiceCreatedObserver implements ObserverInterface
         try {
             /** @var \Magento\Sales\Model\Order\Invoice $invoice */
             $invoice = $observer->getEvent()->getInvoice();
-            
+
             if (!$invoice || !$invoice->getOrderId()) {
                 return;
             }
@@ -75,7 +75,7 @@ class InvoiceCreatedObserver implements ObserverInterface
             $order = $this->orderRepository->get($invoice->getOrderId());
 
             // Check if order is already synced
-            if ($order->getData('erp_synced') == 1) {
+            if ($order->getErpSynced() == 1) {
                 return;
             }
 

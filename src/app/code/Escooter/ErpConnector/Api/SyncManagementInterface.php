@@ -6,34 +6,38 @@ declare(strict_types=1);
 
 namespace Escooter\ErpConnector\Api;
 
+use Escooter\ErpConnector\Api\Data\SyncOrderResponseInterface;
+use Escooter\ErpConnector\Api\Data\SyncStatusResponseInterface;
+use Escooter\ErpConnector\Api\Data\WebhookResponseInterface;
+
 interface SyncManagementInterface
 {
     /**
      * Sync order by increment ID
      *
      * @param string $orderIncrementId
-     * @return array
+     * @return SyncOrderResponseInterface
      * @throws \Exception
      */
-    public function syncOrder(string $orderIncrementId): array;
+    public function syncOrder(string $orderIncrementId): SyncOrderResponseInterface;
 
     /**
      * Resync order by increment ID
      *
      * @param string $orderIncrementId
-     * @return array
+     * @return SyncOrderResponseInterface
      * @throws \Exception
      */
-    public function resyncOrder(string $orderIncrementId): array;
+    public function resyncOrder(string $orderIncrementId): SyncOrderResponseInterface;
 
     /**
      * Get sync status for order
      *
      * @param string $orderIncrementId
-     * @return array
+     * @return SyncStatusResponseInterface
      * @throws \Exception
      */
-    public function getSyncStatus(string $orderIncrementId): array;
+    public function getSyncStatus(string $orderIncrementId): SyncStatusResponseInterface;
 
     /**
      * Process webhook from ERP
@@ -42,7 +46,7 @@ interface SyncManagementInterface
      * @param string $erpReference
      * @param string $status
      * @param string|null $signature
-     * @return array
+     * @return WebhookResponseInterface
      * @throws \Exception
      */
     public function processWebhook(
@@ -50,7 +54,7 @@ interface SyncManagementInterface
         string $erpReference,
         string $status,
         ?string $signature = null
-    ): array;
+    ): WebhookResponseInterface;
 
 }
 
