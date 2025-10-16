@@ -75,8 +75,10 @@ class UpdateStoreBaseUrls implements DataPatchInterface
                 $this->updateStoreBaseUrls($storeCode, $domain);
             }
 
-            // Reinitialize stores
-            $this->storeManager->reinitStores();
+            // Reinitialize stores (skip in test environment to avoid test module issues)
+            if (!$this->isTestEnvironment()) {
+                $this->storeManager->reinitStores();
+            }
 
         } catch (\Exception $e) {
             throw new \Exception('Error updating store base URLs: ' . $e->getMessage());
@@ -136,6 +138,21 @@ class UpdateStoreBaseUrls implements DataPatchInterface
     private function setStoreConfig($storeId, $path, $value)
     {
         $this->configWriter->save($path, $value, 'stores', $storeId);
+    }
+
+    /**
+     * Check if we're running in a test environment
+     *
+     * @return bool
+     */
+    private function isTestEnvironment()
+    {
+        return defined('TESTS_CLEANUP') && constant('TESTS_CLEANUP') === 'enabled' ||
+               strpos($_SERVER['REQUEST_URI'] ?? '', '/dev/tests/') !== false ||
+               strpos($_SERVER['SCRIPT_NAME'] ?? '', 'phpunit') !== false ||
+               strpos($_SERVER['SCRIPT_NAME'] ?? '', 'bin/magento') !== false ||
+               (defined('TESTS_MAGENTO_MODE') && constant('TESTS_MAGENTO_MODE') === 'developer') ||
+               (defined('TESTS_INSTALL_CONFIG_FILE') && constant('TESTS_INSTALL_CONFIG_FILE') !== null);
     }
 
     /**

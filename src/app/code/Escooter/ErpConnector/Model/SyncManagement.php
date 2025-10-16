@@ -8,7 +8,13 @@ namespace Escooter\ErpConnector\Model;
 
 use Escooter\ErpConnector\Api\SyncManagementInterface;
 use Escooter\ErpConnector\Api\SyncRepositoryInterface;
+use Escooter\ErpConnector\Api\Data\SyncOrderResponseInterface;
+use Escooter\ErpConnector\Api\Data\SyncStatusResponseInterface;
+use Escooter\ErpConnector\Api\Data\WebhookResponseInterface;
 use Escooter\ErpConnector\Helper\Config;
+use Escooter\ErpConnector\Model\Response\SyncOrderResponseFactory;
+use Escooter\ErpConnector\Model\Response\SyncStatusResponseFactory;
+use Escooter\ErpConnector\Model\Response\WebhookResponseFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -47,6 +53,20 @@ class SyncManagement implements SyncManagementInterface
      */
     private $searchCriteriaBuilder;
 
+    /**
+     * @var SyncOrderResponseFactory
+     */
+    private $syncOrderResponseFactory;
+
+    /**
+     * @var SyncStatusResponseFactory
+     */
+    private $syncStatusResponseFactory;
+
+    /**
+     * @var WebhookResponseFactory
+     */
+    private $webhookResponseFactory;
 
     /**
      * @param SyncRepositoryInterface $syncRepository
@@ -55,6 +75,9 @@ class SyncManagement implements SyncManagementInterface
      * @param Config $config
      * @param LoggerInterface $logger
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param SyncOrderResponseFactory $syncOrderResponseFactory
+     * @param SyncStatusResponseFactory $syncStatusResponseFactory
+     * @param WebhookResponseFactory $webhookResponseFactory
      */
     public function __construct(
         SyncRepositoryInterface $syncRepository,
@@ -63,6 +86,9 @@ class SyncManagement implements SyncManagementInterface
         Config $config,
         LoggerInterface $logger,
         SearchCriteriaBuilder $searchCriteriaBuilder,
+        SyncOrderResponseFactory $syncOrderResponseFactory,
+        SyncStatusResponseFactory $syncStatusResponseFactory,
+        WebhookResponseFactory $webhookResponseFactory
     ) {
         $this->syncRepository = $syncRepository;
         $this->orderRepository = $orderRepository;
@@ -70,12 +96,15 @@ class SyncManagement implements SyncManagementInterface
         $this->config = $config;
         $this->logger = $logger;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->syncOrderResponseFactory = $syncOrderResponseFactory;
+        $this->syncStatusResponseFactory = $syncStatusResponseFactory;
+        $this->webhookResponseFactory = $webhookResponseFactory;
     }
 
     /**
      * @inheritdoc
      */
-    public function syncOrder(string $orderIncrementId): array
+    public function syncOrder(string $orderIncrementId): SyncOrderResponseInterface
     {
         if (!$this->config->isEnabled()) {
             throw new LocalizedException(__('ERP Connector is not enabled'));
@@ -98,7 +127,7 @@ class SyncManagement implements SyncManagementInterface
             // Process sync
             $result = $this->erpSyncService->processSync($sync);
 
-            return [
+            return $this->syncOrderResponseFactory->create([
                 'success' => $result,
                 'sync_id' => $sync->getSyncId(),
                 'order_increment_id' => $orderIncrementId,
@@ -107,7 +136,7 @@ class SyncManagement implements SyncManagementInterface
                 'erp_reference' => $sync->getErpReference(),
                 'attempts' => $sync->getAttempts(),
                 'last_error' => $sync->getLastError()
-            ];
+            ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Error syncing order: ' . $e->getMessage(), [
@@ -115,18 +144,18 @@ class SyncManagement implements SyncManagementInterface
                 'exception' => $e
             ]);
 
-            return [
+            return $this->syncOrderResponseFactory->create([
                 'success' => false,
                 'order_increment_id' => $orderIncrementId,
                 'message' => $e->getMessage()
-            ];
+            ]);
         }
     }
 
     /**
      * @inheritdoc
      */
-    public function resyncOrder(string $orderIncrementId): array
+    public function resyncOrder(string $orderIncrementId): SyncOrderResponseInterface
     {
         if (!$this->config->isEnabled()) {
             throw new LocalizedException(__('ERP Connector is not enabled'));
@@ -142,7 +171,7 @@ class SyncManagement implements SyncManagementInterface
             // Process sync
             $result = $this->erpSyncService->processSync($sync);
 
-            return [
+            return $this->syncOrderResponseFactory->create([
                 'success' => $result,
                 'sync_id' => $sync->getSyncId(),
                 'order_increment_id' => $orderIncrementId,
@@ -151,7 +180,7 @@ class SyncManagement implements SyncManagementInterface
                 'erp_reference' => $sync->getErpReference(),
                 'attempts' => $sync->getAttempts(),
                 'last_error' => $sync->getLastError()
-            ];
+            ]);
 
         } catch (NoSuchEntityException $e) {
             // If no sync record exists, create one
@@ -163,23 +192,23 @@ class SyncManagement implements SyncManagementInterface
                 'exception' => $e
             ]);
 
-            return [
+            return $this->syncOrderResponseFactory->create([
                 'success' => false,
                 'order_increment_id' => $orderIncrementId,
                 'message' => $e->getMessage()
-            ];
+            ]);
         }
     }
 
     /**
      * @inheritdoc
      */
-    public function getSyncStatus(string $orderIncrementId): array
+    public function getSyncStatus(string $orderIncrementId): SyncStatusResponseInterface
     {
         try {
             $sync = $this->syncRepository->getByOrderIncrementId($orderIncrementId);
 
-            return [
+            return $this->syncStatusResponseFactory->create([
                 'sync_id' => $sync->getSyncId(),
                 'order_id' => $sync->getOrderId(),
                 'order_increment_id' => $sync->getOrderIncrementId(),
@@ -192,14 +221,14 @@ class SyncManagement implements SyncManagementInterface
                 'last_error' => $sync->getLastError(),
                 'created_at' => $sync->getCreatedAt(),
                 'updated_at' => $sync->getUpdatedAt()
-            ];
+            ]);
 
         } catch (NoSuchEntityException $e) {
-            return [
+            return $this->syncStatusResponseFactory->create([
                 'order_increment_id' => $orderIncrementId,
                 'status' => 'not_synced',
                 'message' => 'No sync record found for this order'
-            ];
+            ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Error getting sync status: ' . $e->getMessage(), [
@@ -207,10 +236,10 @@ class SyncManagement implements SyncManagementInterface
                 'exception' => $e
             ]);
 
-            return [
+            return $this->syncStatusResponseFactory->create([
                 'order_increment_id' => $orderIncrementId,
                 'error' => $e->getMessage()
-            ];
+            ]);
         }
     }
 
@@ -222,7 +251,7 @@ class SyncManagement implements SyncManagementInterface
         string $erpReference,
         string $status,
         ?string $signature = null
-    ): array {
+    ): WebhookResponseInterface {
         if (!$this->config->isEnabled()) {
             throw new LocalizedException(__('ERP Connector is not enabled'));
         }
@@ -273,12 +302,12 @@ class SyncManagement implements SyncManagementInterface
                 'status' => $status
             ]);
 
-            return [
+            return $this->webhookResponseFactory->create([
                 'success' => true,
                 'message' => 'Webhook processed successfully',
                 'order_increment_id' => $orderIncrementId,
                 'erp_reference' => $erpReference
-            ];
+            ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Error processing webhook: ' . $e->getMessage(), [
@@ -287,10 +316,10 @@ class SyncManagement implements SyncManagementInterface
                 'exception' => $e
             ]);
 
-            return [
+            return $this->webhookResponseFactory->create([
                 'success' => false,
                 'message' => $e->getMessage()
-            ];
+            ]);
         }
     }
 

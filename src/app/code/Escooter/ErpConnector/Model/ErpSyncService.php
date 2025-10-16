@@ -6,12 +6,15 @@ declare(strict_types=1);
 
 namespace Escooter\ErpConnector\Model;
 
+use Escooter\ErpConnector\Api\Data\ErpResponseInterface as ErpFailureResponseInterface;
+use Escooter\ErpConnector\Api\Data\ErpResponseInterface;
 use Escooter\ErpConnector\Api\Data\SyncInterface;
 use Escooter\ErpConnector\Api\ErpClientInterface;
 use Escooter\ErpConnector\Api\SyncRepositoryInterface;
 use Escooter\ErpConnector\Helper\Config;
 use Escooter\ErpConnector\Helper\IdempotencyKeyGenerator;
 use Magento\Framework\Event\ManagerInterface as EventManager;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -118,7 +121,7 @@ class ErpSyncService
         // Check if sync record already exists
         try {
             return $this->syncRepository->getByOrderId((int) $order->getEntityId());
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+        } catch (NoSuchEntityException $e) {
             // Create new sync record
             $sync = $this->syncFactory->create();
             $sync->setOrderId((int) $order->getEntityId());
@@ -214,13 +217,13 @@ class ErpSyncService
      *
      * @param SyncInterface $sync
      * @param OrderInterface $order
-     * @param \Escooter\ErpConnector\Api\Data\ErpResponseInterface $response
+     * @param ErpResponseInterface $response
      * @return bool
      */
     private function handleSuccess(
         SyncInterface $sync,
         OrderInterface $order,
-        \Escooter\ErpConnector\Api\Data\ErpResponseInterface $response
+        ErpResponseInterface $response
     ): bool {
         $sync->setStatus(SyncInterface::STATUS_SUCCESS);
         $sync->setErpReference($response->getErpId());
@@ -256,13 +259,13 @@ class ErpSyncService
      *
      * @param SyncInterface $sync
      * @param OrderInterface $order
-     * @param \Escooter\ErpConnector\Api\Data\ErpResponseInterface $response
+     * @param ErpFailureResponseInterface $response
      * @return bool
      */
     private function handleFailure(
         SyncInterface $sync,
         OrderInterface $order,
-        \Escooter\ErpConnector\Api\Data\ErpResponseInterface $response
+        ErpFailureResponseInterface $response
     ): bool {
         $errorMessage = $response->getErrorMessage();
         $sync->setLastError($errorMessage);
@@ -314,11 +317,6 @@ class ErpSyncService
                 'order_increment_id' => $sync->getOrderIncrementId(),
                 'attempts' => $sync->getAttempts(),
                 'max_attempts' => $sync->getMaxAttempts()
-            ]);
-
-            // Dispatch failed event
-            $this->eventManager->dispatch('vendor_erp_sync_failed', [
-                'sync' => $sync
             ]);
 
             return false;
