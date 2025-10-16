@@ -19,7 +19,6 @@
                     <resource id="Escooter_ErpConnector::sync" title="Sync Orders" sortOrder="10" />
                     <resource id="Escooter_ErpConnector::resync" title="Resync Orders" sortOrder="20" />
                     <resource id="Escooter_ErpConnector::viewstatus" title="View Sync Status" sortOrder="30" />
-                    <resource id="Escooter_ErpConnector::mockstock" title="View Sync Status" sortOrder="30" />
                 </resource>
             </resource>
         </resources>

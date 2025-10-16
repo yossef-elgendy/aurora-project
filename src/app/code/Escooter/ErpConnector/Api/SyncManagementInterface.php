@@ -52,18 +52,5 @@ interface SyncManagementInterface
         ?string $signature = null
     ): array;
 
-    /**
-     * Mock ERP stock update endpoint
-     *
-     * @param \Escooter\ErpConnector\Api\Data\MockStockItemInterface[] $items
-     * @param string $orderIncrementId
-     * @param string|null $idempotencyKey
-     * @return array
-     */
-    public function mockUpdateStock(
-        array $items,
-        string $orderIncrementId,
-        ?string $idempotencyKey = null
-    ): array;
 }
 

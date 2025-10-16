@@ -82,8 +82,8 @@ class IdempotencyKeyGeneratorTest extends TestCase
         $incrementId = '000000123';
 
         $key1 = $this->generator->generateFromIncrementId($incrementId);
-        // Small delay to ensure different timestamp
-        usleep(1000);
+        // Wait 2 seconds to ensure different timestamp (date format is Y-m-d H:i:s)
+        sleep(2);
         $key2 = $this->generator->generateFromIncrementId($incrementId);
 
         $this->assertStringStartsWith('ERP_', $key1);

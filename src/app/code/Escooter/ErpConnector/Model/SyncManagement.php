@@ -47,6 +47,7 @@ class SyncManagement implements SyncManagementInterface
      */
     private $searchCriteriaBuilder;
 
+
     /**
      * @param SyncRepositoryInterface $syncRepository
      * @param OrderRepositoryInterface $orderRepository
@@ -61,7 +62,7 @@ class SyncManagement implements SyncManagementInterface
         ErpSyncService $erpSyncService,
         Config $config,
         LoggerInterface $logger,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        SearchCriteriaBuilder $searchCriteriaBuilder,
     ) {
         $this->syncRepository = $syncRepository;
         $this->orderRepository = $orderRepository;
@@ -293,46 +294,6 @@ class SyncManagement implements SyncManagementInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function mockUpdateStock(
-        array $items,
-        string $orderIncrementId,
-        ?string $idempotencyKey = null
-    ): array {
-        // This is a mock endpoint for testing purposes
-        $this->logger->info('Mock ERP: Received stock update request', [
-            'order_increment_id' => $orderIncrementId,
-            'items_count' => count($items),
-            'idempotency_key' => $idempotencyKey
-        ]);
-
-        // Simulate processing
-        $processedItems = [];
-        foreach ($items as $item) {
-            $sku = is_array($item) ? ($item['sku'] ?? null) : 
-                   (method_exists($item, 'getSku') ? $item->getSku() : null);
-            $qty = is_array($item) ? ($item['qty'] ?? 0) : 
-                   (method_exists($item, 'getQty') ? $item->getQty() : 0);
-            
-            $processedItems[] = [
-                'sku' => $sku,
-                'qty' => $qty,
-                'status' => 'updated'
-            ];
-        }
-
-        return [
-            'ok' => true,
-            'message' => 'Stock updated successfully (mock)',
-            'order_increment_id' => $orderIncrementId,
-            'idempotency_key' => $idempotencyKey,
-            'erp_reference' => 'ERP-' . uniqid(),
-            'items' => $processedItems,
-            'timestamp' => date('Y-m-d H:i:s')
-        ];
-    }
 
     /**
      * Create search criteria for order
