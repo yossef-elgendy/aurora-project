@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace Escooter\ErpConnector\Test\Integration;
 
+use Escooter\ErpConnector\Model\SyncFactory;
 use Escooter\ErpConnector\Api\Data\SyncInterface;
 use Escooter\ErpConnector\Api\SyncManagementInterface;
 use Escooter\ErpConnector\Api\SyncRepositoryInterface;
@@ -71,7 +72,7 @@ class EndToEndSyncTest extends TestCase
         $this->assertTrue($this->config->isEnabled(), 'Module should be enabled');
 
         // Step 2: Create a mock sync record (simulating order sync)
-        $syncFactory = Bootstrap::getObjectManager()->get(\Escooter\ErpConnector\Model\SyncFactory::class);
+        $syncFactory = Bootstrap::getObjectManager()->get(SyncFactory::class);
         $sync = $syncFactory->create();
         $sync->setOrderId(999);
         $sync->setOrderIncrementId('100000999');
@@ -79,7 +80,7 @@ class EndToEndSyncTest extends TestCase
         $sync->setAttempts(0);
         $sync->setMaxAttempts(5);
         $sync->setIdempotencyKey('test-flow-key-999');
-        
+
         $savedSync = $this->syncRepository->save($sync);
         $this->assertNotNull($savedSync->getSyncId(), 'Sync should be saved with ID');
 
@@ -89,9 +90,9 @@ class EndToEndSyncTest extends TestCase
 
         // Step 4: Test status retrieval via API
         $status = $this->syncManagement->getSyncStatus('100000999');
-        $this->assertEquals('100000999', $status['order_increment_id']);
-        $this->assertEquals(SyncInterface::STATUS_PENDING, $status['status']);
-        $this->assertEquals(0, $status['attempts']);
+        $this->assertEquals('100000999', $status->getOrderIncrementId());
+        $this->assertEquals(SyncInterface::STATUS_PENDING, $status->getStatus());
+        $this->assertEquals(0, $status->getAttempts());
 
         // Step 5: Update sync status to success
         $loadedSync->setStatus(SyncInterface::STATUS_SUCCESS);
@@ -123,7 +124,7 @@ class EndToEndSyncTest extends TestCase
         $savedSync = $this->syncRepository->save($sync);
 
         // Test retrieval by sync_id
-        $byId = $this->syncRepository->getById($savedSync->getSyncId());
+        $byId = $this->syncRepository->getById((int)$savedSync->getSyncId());
         $this->assertEquals(888, $byId->getOrderId());
 
         // Test retrieval by order_id
@@ -146,7 +147,7 @@ class EndToEndSyncTest extends TestCase
      */
     public function testSyncListFiltering()
     {
-        $syncFactory = Bootstrap::getObjectManager()->get(\Escooter\ErpConnector\Model\SyncFactory::class);
+        $syncFactory = Bootstrap::getObjectManager()->get(SyncFactory::class);
         
         // Create multiple syncs with different statuses
         $statuses = [
@@ -179,29 +180,18 @@ class EndToEndSyncTest extends TestCase
     }
 
     /**
-     * Test mock ERP endpoint flow
+     * Test sync order functionality
+     * 
+     * @magentoDbIsolation enabled
      */
-    public function testMockErpEndpoint()
+    public function testSyncOrder()
     {
-        $items = [
-            ['sku' => 'MOCK-SKU-1', 'qty' => 5],
-            ['sku' => 'MOCK-SKU-2', 'qty' => 10]
-        ];
-
-        $result = $this->syncManagement->mockUpdateStock(
-            $items,
-            '100000MOCK',
-            'mock-idempotency-key'
-        );
-
-        $this->assertTrue($result['ok']);
-        $this->assertEquals('Stock updated successfully (mock)', $result['message']);
-        $this->assertEquals('100000MOCK', $result['order_increment_id']);
-        $this->assertEquals('mock-idempotency-key', $result['idempotency_key']);
-        $this->assertArrayHasKey('erp_reference', $result);
-        $this->assertStringStartsWith('ERP-', $result['erp_reference']);
-        $this->assertEquals(2, count($result['items']));
-        $this->assertEquals('updated', $result['items'][0]['status']);
+        // Test syncing a non-existent order (should return error response)
+        $response = $this->syncManagement->syncOrder('100000MOCK');
+        
+        $this->assertFalse($response->getSuccess());
+        $this->assertNotEmpty($response->getMessage());
+        $this->assertEquals('100000MOCK', $response->getOrderIncrementId());
     }
 
     /**
@@ -211,8 +201,8 @@ class EndToEndSyncTest extends TestCase
      */
     public function testSyncRetryTracking()
     {
-        $syncFactory = Bootstrap::getObjectManager()->get(\Escooter\ErpConnector\Model\SyncFactory::class);
-        
+        $syncFactory = Bootstrap::getObjectManager()->get(SyncFactory::class);
+
         // Create sync
         $sync = $syncFactory->create();
         $sync->setOrderId(555);
@@ -234,7 +224,7 @@ class EndToEndSyncTest extends TestCase
         $finalSync = $this->syncRepository->getByOrderIncrementId('100000555');
         $this->assertEquals(3, $finalSync->getAttempts());
         $this->assertEquals(3, $finalSync->getMaxAttempts());
-        $this->assertStringContains('attempt 3', $finalSync->getLastError());
+        $this->assertStringContainsString('attempt 3', $finalSync->getLastError());
     }
 }
 

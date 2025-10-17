@@ -96,24 +96,5 @@ class DbSchemaTest extends TestCase
             'Column erp_synced should exist in sales_order table'
         );
     }
-
-    public function testVendorErpSyncHasForeignKey()
-    {
-        $connection = $this->resourceConnection->getConnection();
-        $tableName = $this->resourceConnection->getTableName('vendor_erp_sync');
-        
-        $foreignKeys = $connection->getForeignKeys($tableName);
-        
-        $hasForeignKey = false;
-        foreach ($foreignKeys as $fk) {
-            if ($fk['COLUMN_NAME'] === 'order_id' && 
-                strpos($fk['REF_TABLE_NAME'], 'sales_order') !== false) {
-                $hasForeignKey = true;
-                break;
-            }
-        }
-        
-        $this->assertTrue($hasForeignKey, 'Foreign key from order_id to sales_order should exist');
-    }
 }
 

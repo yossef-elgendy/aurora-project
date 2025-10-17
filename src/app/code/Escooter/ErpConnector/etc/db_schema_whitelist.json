@@ -20,7 +20,8 @@
         "index": {
             "VENDOR_ERP_SYNC_ORDER_ID": true,
             "VENDOR_ERP_SYNC_ORDER_INCREMENT_ID": true,
-            "VENDOR_ERP_SYNC_STATUS": true
+            "VENDOR_ERP_SYNC_STATUS": true,
+            "VENDOR_ERP_SYNC_STATUS_NEXT_ATTEMPT_AT": true
         },
         "constraint": {
             "PRIMARY": true

@@ -56,7 +56,7 @@ class SyncRepositoryTest extends TestCase
         $this->assertNotNull($savedSync->getSyncId());
 
         // Get by ID
-        $loadedSync = $this->syncRepository->getById($savedSync->getSyncId());
+        $loadedSync = $this->syncRepository->getById((int) $savedSync->getSyncId());
         $this->assertEquals($sync->getOrderId(), $loadedSync->getOrderId());
         $this->assertEquals($sync->getOrderIncrementId(), $loadedSync->getOrderIncrementId());
         $this->assertEquals($sync->getStatus(), $loadedSync->getStatus());
@@ -144,7 +144,7 @@ class SyncRepositoryTest extends TestCase
         $this->syncRepository->save($savedSync);
 
         // Verify update
-        $loadedSync = $this->syncRepository->getById($savedSync->getSyncId());
+        $loadedSync = $this->syncRepository->getById((int)$savedSync->getSyncId());
         $this->assertEquals(SyncInterface::STATUS_SUCCESS, $loadedSync->getStatus());
         $this->assertEquals('ERP-111', $loadedSync->getErpReference());
     }
@@ -168,7 +168,7 @@ class SyncRepositoryTest extends TestCase
 
         // Verify deletion
         $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
-        $this->syncRepository->getById($syncId);
+        $this->syncRepository->getById((int)$syncId);
     }
 }
 
