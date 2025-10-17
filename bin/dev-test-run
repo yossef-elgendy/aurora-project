@@ -4,4 +4,33 @@
 
 TEST_TYPE="$1"
 shift
+
+# Clean up any existing test modules before running tests
+echo "Cleaning up test modules..."
+bin/clinotty bash -c "
+    # Remove any existing test modules from app/code/Magento
+    if [ -d 'app/code/Magento' ]; then
+        find app/code/Magento -name 'TestModule*' -type d -exec rm -rf {} + 2>/dev/null || true
+    fi
+    
+    # Clean up any temporary test files
+    if [ -d 'dev/tests/integration/tmp' ]; then
+        rm -rf dev/tests/integration/tmp/* 2>/dev/null || true
+    fi
+    
+    # Clean up var directories that might contain test artifacts
+    if [ -d 'var/cache' ]; then
+        rm -rf var/cache/* 2>/dev/null || true
+    fi
+    if [ -d 'var/page_cache' ]; then
+        rm -rf var/page_cache/* 2>/dev/null || true
+    fi
+    if [ -d 'var/view_preprocessed' ]; then
+        rm -rf var/view_preprocessed/* 2>/dev/null || true
+    fi
+    if [ -d 'generated/code' ]; then
+        rm -rf generated/code/* 2>/dev/null || true
+    fi
+"
+
 bin/clinotty bash -c "cd dev/tests/${TEST_TYPE} && ../../../vendor/bin/phpunit -c phpunit.xml.dist $*"
