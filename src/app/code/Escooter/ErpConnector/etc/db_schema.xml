@@ -34,6 +34,10 @@
         <index referenceId="VENDOR_ERP_SYNC_STATUS" indexType="btree">
             <column name="status"/>
         </index>
+        <index referenceId="VENDOR_ERP_SYNC_STATUS_NEXT_ATTEMPT" indexType="btree">
+            <column name="status"/>
+            <column name="next_attempt_at"/>
+        </index>
     </table>
     
     <table name="sales_order" resource="default">
