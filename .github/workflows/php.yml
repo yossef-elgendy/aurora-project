@@ -17,23 +17,33 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, soap, xsl, zip, gd, curl, dom, filter, hash, json, libxml, openssl, pcre, readline, session, tokenizer, xmlreader, xmlwriter, mysqlnd, pdo, pdo_mysql, bcmath, gmp, sodium, zip, fileinfo, ftp, gettext, sockets, exif, mysqli, pdo_sqlite, sqlite3, xmlrpc, xsl, zlib, calendar, ctype, exif, fileinfo, ftp, gettext, iconv, intl, json, mbstring, mysqlnd, pcntl, pcre, readline, shmop, sockets, sysvmsg, sysvsem, sysvshm, tokenizer, xml, xmlreader, xmlrpc, xmlwriter, xsl, zip, zlib
+        coverage: none
+
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
+      working-directory: src
 
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
       with:
-        path: vendor
+        path: src/vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
+      working-directory: src
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
     # - name: Run test suite
     #   run: composer run-script test
+    #   working-directory: src
