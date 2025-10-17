@@ -49,7 +49,6 @@ var/generation/
 
 # Composer
 vendor/
-composer.lock
 
 # Node modules
 node_modules/
