@@ -18,6 +18,7 @@ use Magento\Directory\Model\CurrencyFactory;
 use Magento\Store\Model\Store;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Data patch to setup currency-specific pricing for products
@@ -104,7 +105,7 @@ class SetupCurrencyPricing implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -113,6 +114,7 @@ class SetupCurrencyPricing implements DataPatchInterface
         try {
             try {
                 $this->appState->setAreaCode('adminhtml');
+            //@codingStandardsIgnoreLine
             } catch (\Exception $e) {
                 // Area code is already set, continue
             }
@@ -124,7 +126,9 @@ class SetupCurrencyPricing implements DataPatchInterface
             $this->setupCurrencyRates();
 
         } catch (\Exception $e) {
-            throw new \Exception('Error setting up currency pricing: ' . $e->getMessage());
+            throw new LocalizedException(
+                __('Error setting up currency pricing: %1', $e->getMessage())
+            );
         }
 
         $this->moduleDataSetup->getConnection()->endSetup();
@@ -144,10 +148,11 @@ class SetupCurrencyPricing implements DataPatchInterface
                 0
             );
         } catch (\Exception $e) {
-            throw new \Exception('Error configuring catalog price scope: ' . $e->getMessage());
+            throw new LocalizedException(
+                __('Error configuring catalog price scope: %1', $e->getMessage())
+            );
         }
     }
-
 
     /**
      * Setup currency rates for conversion
@@ -194,6 +199,9 @@ class SetupCurrencyPricing implements DataPatchInterface
 
     /**
      * Get CSV file path
+     *
+     * @param string $filename
+     * @return string
      */
     private function getCsvFilePath($filename)
     {
@@ -202,7 +210,7 @@ class SetupCurrencyPricing implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
@@ -212,7 +220,7 @@ class SetupCurrencyPricing implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

@@ -20,6 +20,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Api\Data\ProductExtensionFactory;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -160,14 +161,21 @@ class ConfigurableProductImporterHelper
 
             // Save the product (configurable options will be set during association)
             $this->productRepository->save($product);
-            
+
             $this->logger->info("Created configurable product: {$data['sku']}");
 
             return $product;
 
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this->logger->error("Error creating configurable product {$data['sku']}: " . $e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __("Error creating configurable product %1: %2", $data['sku'], $e->getMessage())
+            );
         } catch (\Exception $e) {
             $this->logger->error("Error creating configurable product {$data['sku']}: " . $e->getMessage());
-            throw new \Exception("Error creating configurable product {$data['sku']}: " . $e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __("Error creating configurable product %1: %2", $data['sku'], $e->getMessage())
+            );
         }
     }
 
@@ -189,7 +197,8 @@ class ConfigurableProductImporterHelper
             $product->setPrice($data['price']);
             $product->setWeight($data['weight']);
             $product->setStatus(Status::STATUS_ENABLED);
-            $product->setVisibility(Visibility::VISIBILITY_NOT_VISIBLE); // Simple products typically not visible individually
+            // Simple products typically not visible individually
+            $product->setVisibility(Visibility::VISIBILITY_NOT_VISIBLE);
             $product->setDescription($data['description']);
             $product->setShortDescription($data['short_description']);
             $product->setMetaTitle($data['meta_title']);
@@ -224,9 +233,16 @@ class ConfigurableProductImporterHelper
 
             return $product;
 
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this->logger->error("Error creating configurable variation {$data['sku']}: " . $e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __("Error creating configurable variation %1: %2", $data['sku'], $e->getMessage())
+            );
         } catch (\Exception $e) {
             $this->logger->error("Error creating configurable variation {$data['sku']}: " . $e->getMessage());
-            throw new \Exception("Error creating configurable variation {$data['sku']}: " . $e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __("Error creating configurable variation %1: %2", $data['sku'], $e->getMessage())
+            );
         }
     }
 
@@ -244,7 +260,9 @@ class ConfigurableProductImporterHelper
             $configurableProduct = $this->productRepository->get($parentSku);
             
             if (!$configurableProduct || $configurableProduct->getTypeId() !== Configurable::TYPE_CODE) {
-                throw new \Exception("Configurable product {$parentSku} not found or not configurable type");
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("Configurable product %1 not found or not configurable type", $parentSku)
+                );
             }
 
             // Load all variation products
@@ -258,17 +276,23 @@ class ConfigurableProductImporterHelper
             }
 
             if (empty($variationProducts)) {
-                throw new \Exception("No valid variation products found for {$parentSku}");
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("No valid variation products found for %1", $parentSku)
+                );
             }
 
             // Detect which attributes vary among the children
             $configurableAttributeCodes = $this->detectConfigurableAttributes($variationProducts);
 
             if (empty($configurableAttributeCodes)) {
-                throw new \Exception("No configurable attributes detected for {$parentSku}");
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("No configurable attributes detected for %1", $parentSku)
+                );
             }
 
-            $this->logger->info("Detected configurable attributes for {$parentSku}: " . implode(', ', $configurableAttributeCodes));
+            $this->logger->info(
+                "Detected configurable attributes for {$parentSku}: " . implode(', ', $configurableAttributeCodes)
+            );
 
             // Step 1: Create and set configurable product options
             $configurableOptions = $this->buildConfigurableOptions($configurableAttributeCodes, $variationProducts);
@@ -289,7 +313,10 @@ class ConfigurableProductImporterHelper
             $extensionAttributes->setConfigurableProductLinks($childProductIds);
             $configurableProduct->setExtensionAttributes($extensionAttributes);
 
-            $this->logger->info("Attempting to save configurable product {$parentSku} with " . count($configurableOptions) . " options and " . count($childProductIds) . " child products");
+            $this->logger->info(
+                "Attempting to save configurable product {$parentSku} with " .
+                count($configurableOptions) . " options and " . count($childProductIds) . " child products"
+            );
 
             // Save the configurable product
             try {
@@ -298,16 +325,23 @@ class ConfigurableProductImporterHelper
             } catch (\Exception $e) {
                 $this->logger->error("Failed to save configurable product {$parentSku}: " . $e->getMessage());
                 $this->logger->error("Stack trace: " . $e->getTraceAsString());
-                throw $e;
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __("Failed to save configurable product %1: %2", $parentSku, $e->getMessage())
+                );
             }
 
             // Step 4: Set stock for configurable product
             $this->setConfigurableStock($parentSku);
 
-            $this->logger->info("Successfully associated " . count($variationProducts) . " variations with configurable product: {$parentSku}");
+            $this->logger->info(
+                "Successfully associated " . count($variationProducts) .
+                " variations with configurable product: {$parentSku}"
+            );
         } catch (\Exception $e) {
             $this->logger->error("Error associating variations to {$parentSku}: " . $e->getMessage());
-            throw $e;
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __("Error associating variations to %1: %2", $parentSku, $e->getMessage())
+            );
         }
     }
 
@@ -387,7 +421,8 @@ class ConfigurableProductImporterHelper
     }
 
     /**
-     * Detect configurable attributes from variation products
+     * Detect configurable attributes from variation products.
+     *
      * Returns valid configurable attributes that vary among children
      *
      * @param array $variationProducts
@@ -418,12 +453,18 @@ class ConfigurableProductImporterHelper
                     if ($attribute->getId() &&
                         $attribute->getIsVisible() &&
                         $attribute->usesSource() &&
-                        $attribute->getIsGlobal() == \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL) {
-                        
-                        $this->logger->info("Detected varying attribute '{$attributeCode}' with " . count($uniqueValues) . " unique values");
+                        $attribute->getIsGlobal() ==
+                        \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL) {
+
+                        $this->logger->info(
+                            "Detected varying attribute '{$attributeCode}' with " .
+                            count($uniqueValues) . " unique values"
+                        );
                         $detectedAttributes[] = $attributeCode;
                     } else {
-                        $this->logger->warning("Attribute '{$attributeCode}' varies but doesn't meet configurable requirements, skipping");
+                        $this->logger->warning(
+                            "Attribute '{$attributeCode}' varies but doesn't meet configurable requirements, skipping"
+                        );
                     }
                 } catch (\Exception $e) {
                     $this->logger->error("Error validating attribute '{$attributeCode}': " . $e->getMessage());
@@ -432,7 +473,10 @@ class ConfigurableProductImporterHelper
         }
 
         if (!empty($detectedAttributes)) {
-            $this->logger->info("Using " . count($detectedAttributes) . " configurable attribute(s): " . implode(', ', $detectedAttributes));
+            $this->logger->info(
+                "Using " . count($detectedAttributes) . " configurable attribute(s): " .
+                implode(', ', $detectedAttributes)
+            );
         }
 
         return $detectedAttributes;
@@ -459,9 +503,11 @@ class ConfigurableProductImporterHelper
                 }
 
                 // Log attribute properties for debugging
-                $this->logger->info("Building options for attribute {$attributeCode}: is_global=" . $attribute->getIsGlobal() .
+                $this->logger->info(
+                    "Building options for attribute {$attributeCode}: is_global=" . $attribute->getIsGlobal() .
                     ", is_visible=" . $attribute->getIsVisible() .
-                    ", uses_source=" . ($attribute->usesSource() ? '1' : '0'));
+                    ", uses_source=" . ($attribute->usesSource() ? '1' : '0')
+                );
 
                 // Collect all unique option values for this attribute from variations
                 $attributeValues = [];
@@ -490,7 +536,10 @@ class ConfigurableProductImporterHelper
                     'values' => array_values($attributeValues),
                 ];
 
-                $this->logger->info("Built configurable option for attribute: {$attributeCode} with " . count($attributeValues) . " values");
+                $this->logger->info(
+                    "Built configurable option for attribute: {$attributeCode} with " .
+                    count($attributeValues) . " values"
+                );
             } catch (\Exception $e) {
                 $this->logger->error("Error building configurable option for {$attributeCode}: " . $e->getMessage());
             }
@@ -517,7 +566,10 @@ class ConfigurableProductImporterHelper
                 }
             }
         } catch (\Exception $e) {
-            $this->logger->warning("Could not get option label for attribute {$attribute->getAttributeCode()}: " . $e->getMessage());
+            $this->logger->warning(
+                "Could not get option label for attribute {$attribute->getAttributeCode()}: " .
+                $e->getMessage()
+            );
         }
         return (string)$optionId;
     }
@@ -611,7 +663,9 @@ class ConfigurableProductImporterHelper
                 $websiteIds[] = $website->getId();
             }
         } catch (\Exception $e) {
-            $this->logger->warning("Failed to get websites from StoreManager, using default website: " . $e->getMessage());
+            $this->logger->warning(
+                "Failed to get websites from StoreManager, using default website: " . $e->getMessage()
+            );
         }
 
         return $websiteIds;

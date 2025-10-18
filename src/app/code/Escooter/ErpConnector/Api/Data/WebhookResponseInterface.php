@@ -8,10 +8,10 @@ namespace Escooter\ErpConnector\Api\Data;
 
 interface WebhookResponseInterface
 {
-    const SUCCESS = 'success';
-    const MESSAGE = 'message';
-    const ORDER_INCREMENT_ID = 'order_increment_id';
-    const ERP_REFERENCE = 'erp_reference';
+    public const SUCCESS = 'success';
+    public const MESSAGE = 'message';
+    public const ORDER_INCREMENT_ID = 'order_increment_id';
+    public const ERP_REFERENCE = 'erp_reference';
 
     /**
      * Get success status

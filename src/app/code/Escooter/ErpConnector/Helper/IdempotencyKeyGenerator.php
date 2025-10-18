@@ -10,7 +10,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 
 class IdempotencyKeyGenerator
 {
-    const PREFIX = 'ERP_';
+    public const PREFIX = 'ERP_';
 
     /**
      * Generate idempotency key for order

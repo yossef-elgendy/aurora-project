@@ -15,6 +15,7 @@ use Magento\Catalog\Model\Product\Visibility;
 use Magento\Eav\Model\Config as EavConfig;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -131,11 +132,11 @@ class ProductImporterHelper
 
         } catch (\Exception $e) {
             $this->logger->error("Error creating simple product {$data['sku']}: " . $e->getMessage());
-            throw new \Exception("Error creating simple product {$data['sku']}: " . $e->getMessage());
+            throw new LocalizedException(
+                __('Error creating simple product %1: %2', $data['sku'], $e->getMessage())
+            );
         }
     }
-
-
 
     /**
      * Set product attributes
@@ -212,10 +213,6 @@ class ProductImporterHelper
         }
     }
 
-
-
-
-
     /**
      * Get all category IDs including parent categories
      *
@@ -284,7 +281,9 @@ class ProductImporterHelper
                 $websiteIds[] = $website->getId();
             }
         } catch (\Exception $e) {
-            $this->logger->warning("Failed to get websites from StoreManager, using default website: " . $e->getMessage());
+            $this->logger->warning(
+                "Failed to get websites from StoreManager, using default website: " . $e->getMessage()
+            );
         }
 
         return $websiteIds;

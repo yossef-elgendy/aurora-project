@@ -64,7 +64,7 @@ class UpdateStoreBaseUrls implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -148,15 +148,14 @@ class UpdateStoreBaseUrls implements DataPatchInterface
     private function isTestEnvironment()
     {
         return defined('TESTS_CLEANUP') && constant('TESTS_CLEANUP') === 'enabled' ||
+                //@codingStandardsIgnoreLine
                strpos($_SERVER['REQUEST_URI'] ?? '', '/dev/tests/') !== false ||
-               strpos($_SERVER['SCRIPT_NAME'] ?? '', 'phpunit') !== false ||
-               strpos($_SERVER['SCRIPT_NAME'] ?? '', 'bin/magento') !== false ||
-               (defined('TESTS_MAGENTO_MODE') && constant('TESTS_MAGENTO_MODE') === 'developer') ||
-               (defined('TESTS_INSTALL_CONFIG_FILE') && constant('TESTS_INSTALL_CONFIG_FILE') !== null);
+                //@codingStandardsIgnoreLine
+               strpos($_SERVER['SCRIPT_NAME'] ?? '', 'phpunit') !== false;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
@@ -166,7 +165,7 @@ class UpdateStoreBaseUrls implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

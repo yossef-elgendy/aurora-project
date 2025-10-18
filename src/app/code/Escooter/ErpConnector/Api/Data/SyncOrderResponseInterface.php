@@ -8,14 +8,14 @@ namespace Escooter\ErpConnector\Api\Data;
 
 interface SyncOrderResponseInterface
 {
-    const SUCCESS = 'success';
-    const SYNC_ID = 'sync_id';
-    const ORDER_INCREMENT_ID = 'order_increment_id';
-    const STATUS = 'status';
-    const MESSAGE = 'message';
-    const ERP_REFERENCE = 'erp_reference';
-    const ATTEMPTS = 'attempts';
-    const LAST_ERROR = 'last_error';
+    public const SUCCESS = 'success';
+    public const SYNC_ID = 'sync_id';
+    public const ORDER_INCREMENT_ID = 'order_increment_id';
+    public const STATUS = 'status';
+    public const MESSAGE = 'message';
+    public const ERP_REFERENCE = 'erp_reference';
+    public const ATTEMPTS = 'attempts';
+    public const LAST_ERROR = 'last_error';
 
     /**
      * Get success status

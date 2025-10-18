@@ -323,7 +323,6 @@ class SyncManagement implements SyncManagementInterface
         }
     }
 
-
     /**
      * Create search criteria for order
      *

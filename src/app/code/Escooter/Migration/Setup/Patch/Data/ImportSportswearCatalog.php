@@ -13,6 +13,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Escooter\Migration\Helper\ProductImporterHelper;
 use Escooter\Migration\Helper\ConfigurableProductImporterHelper;
 use Escooter\Migration\Helper\CsvImporterHelper;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -55,7 +56,6 @@ class ImportSportswearCatalog implements DataPatchInterface
      */
     private $logger;
 
-
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param State $appState
@@ -84,7 +84,7 @@ class ImportSportswearCatalog implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -94,6 +94,7 @@ class ImportSportswearCatalog implements DataPatchInterface
             // Set area code to avoid issues (only if not already set)
             try {
                 $this->appState->setAreaCode('adminhtml');
+            //@codingStandardsIgnoreLine
             } catch (\Exception $e) {
                 // Area code is already set, continue
             }
@@ -119,12 +120,13 @@ class ImportSportswearCatalog implements DataPatchInterface
             $this->logger->info('Localized content import completed.');
         } catch (\Exception $e) {
             $this->logger->error('Error importing sportswear catalog: ' . $e->getMessage());
-            throw new \Exception('Error importing sportswear catalog: ' . $e->getMessage());
+            throw new LocalizedException(
+                __('Error importing sportswear catalog: %1', $e->getMessage())
+            );
         }
 
         $this->moduleDataSetup->getConnection()->endSetup();
     }
-
 
     /**
      * Import simple products from CSV
@@ -175,18 +177,18 @@ class ImportSportswearCatalog implements DataPatchInterface
         }
     }
 
-
-
-
     /**
      * Update product localization
+     *
+     * @param array $data
+     * @param string $storeCode
+     * @return void
      */
     private function updateProductLocalization($data, $storeCode)
     {
         // This method can be implemented later if needed for localized content
         $this->logger->info("Localized content update for {$data['sku']} in store {$storeCode} - to be implemented");
     }
-
 
     /**
      * Associate simple products with configurable products
@@ -202,9 +204,8 @@ class ImportSportswearCatalog implements DataPatchInterface
         }
     }
 
-
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
@@ -215,7 +216,7 @@ class ImportSportswearCatalog implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

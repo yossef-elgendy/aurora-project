@@ -8,27 +8,27 @@ namespace Escooter\ErpConnector\Api\Data;
 
 interface SyncInterface
 {
-    const SYNC_ID = 'sync_id';
-    const ORDER_ID = 'order_id';
-    const ORDER_INCREMENT_ID = 'order_increment_id';
-    const STATUS = 'status';
-    const ATTEMPTS = 'attempts';
-    const MAX_ATTEMPTS = 'max_attempts';
-    const LAST_ATTEMPT_AT = 'last_attempt_at';
-    const NEXT_ATTEMPT_AT = 'next_attempt_at';
-    const LAST_ERROR = 'last_error';
-    const ERP_REFERENCE = 'erp_reference';
-    const IDEMPOTENCY_KEY = 'idempotency_key';
-    const PAYLOAD = 'payload';
-    const RESPONSE = 'response';
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
+    public const SYNC_ID = 'sync_id';
+    public const ORDER_ID = 'order_id';
+    public const ORDER_INCREMENT_ID = 'order_increment_id';
+    public const STATUS = 'status';
+    public const ATTEMPTS = 'attempts';
+    public const MAX_ATTEMPTS = 'max_attempts';
+    public const LAST_ATTEMPT_AT = 'last_attempt_at';
+    public const NEXT_ATTEMPT_AT = 'next_attempt_at';
+    public const LAST_ERROR = 'last_error';
+    public const ERP_REFERENCE = 'erp_reference';
+    public const IDEMPOTENCY_KEY = 'idempotency_key';
+    public const PAYLOAD = 'payload';
+    public const RESPONSE = 'response';
+    public const CREATED_AT = 'created_at';
+    public const UPDATED_AT = 'updated_at';
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_QUEUED = 'queued';
-    const STATUS_IN_PROGRESS = 'in_progress';
-    const STATUS_SUCCESS = 'success';
-    const STATUS_FAILED = 'failed';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_QUEUED = 'queued';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_SUCCESS = 'success';
+    public const STATUS_FAILED = 'failed';
 
     /**
      * Get sync ID

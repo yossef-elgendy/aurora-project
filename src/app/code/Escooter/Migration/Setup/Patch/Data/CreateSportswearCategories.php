@@ -10,6 +10,7 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Escooter\Migration\Helper\CategoryImporterHelper;
 use Escooter\Migration\Helper\CsvImporterHelper;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -56,7 +57,7 @@ class CreateSportswearCategories implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -71,15 +72,16 @@ class CreateSportswearCategories implements DataPatchInterface
             $this->logger->info('Sportswear categories created successfully');
         } catch (\Exception $e) {
             $this->logger->error('Error creating sportswear categories: ' . $e->getMessage());
-            throw new \Exception('Error creating sportswear categories: ' . $e->getMessage());
+            throw new LocalizedException(
+                __('Error creating sportswear categories: %1', $e->getMessage())
+            );
         }
 
         $this->moduleDataSetup->getConnection()->endSetup();
     }
 
-
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
@@ -87,7 +89,7 @@ class CreateSportswearCategories implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

@@ -13,6 +13,7 @@ use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Eav\Model\Entity\Attribute\Source\Table;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Data patch to setup product attributes for sportswear catalog
@@ -42,7 +43,7 @@ class SetupProductAttributes implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -65,7 +66,9 @@ class SetupProductAttributes implements DataPatchInterface
             $this->createMaterialAttribute($eavSetup);
 
         } catch (\Exception $e) {
-            throw new \Exception('Error setting up product attributes: ' . $e->getMessage());
+            throw new LocalizedException(
+                __('Error setting up product attributes: %1', $e->getMessage())
+            );
         }
 
         $this->moduleDataSetup->getConnection()->endSetup();
@@ -73,6 +76,9 @@ class SetupProductAttributes implements DataPatchInterface
 
     /**
      * Create size attribute
+     *
+     * @param EavSetup $eavSetup
+     * @return void
      */
     private function createSizeAttribute($eavSetup)
     {
@@ -154,6 +160,9 @@ class SetupProductAttributes implements DataPatchInterface
 
     /**
      * Create color attribute
+     *
+     * @param EavSetup $eavSetup
+     * @return void
      */
     private function createColorAttribute($eavSetup)
     {
@@ -203,6 +212,9 @@ class SetupProductAttributes implements DataPatchInterface
 
     /**
      * Create sport type attribute
+     *
+     * @param EavSetup $eavSetup
+     * @return void
      */
     private function createSportTypeAttribute($eavSetup)
     {
@@ -252,6 +264,9 @@ class SetupProductAttributes implements DataPatchInterface
 
     /**
      * Create material attribute
+     *
+     * @param EavSetup $eavSetup
+     * @return void
      */
     private function createMaterialAttribute($eavSetup)
     {
@@ -300,7 +315,7 @@ class SetupProductAttributes implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
@@ -310,7 +325,7 @@ class SetupProductAttributes implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

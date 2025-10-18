@@ -11,6 +11,7 @@ use Magento\Catalog\Model\CategoryFactory;
 use Magento\Catalog\Model\Category;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -93,10 +94,11 @@ class CategoryImporterHelper
 
         } catch (\Exception $e) {
             $this->logger->error('Error creating sportswear categories: ' . $e->getMessage());
-            throw new \Exception('Error creating sportswear categories: ' . $e->getMessage());
+            throw new LocalizedException(
+                __('Error creating sportswear categories: %1', $e->getMessage())
+            );
         }
     }
-
 
     /**
      * Create categories in order (parents first)
@@ -179,7 +181,10 @@ class CategoryImporterHelper
             
             // Set meta information for default store
             $category->setMetaTitle($categoryData['meta_title_en'] ?? $name);
-            $category->setMetaDescription($categoryData['meta_description_en'] ?? "Shop {$name} - High-quality sportswear and athletic gear");
+            $category->setMetaDescription(
+                $categoryData['meta_description_en'] ??
+                "Shop {$name} - High-quality sportswear and athletic gear"
+            );
             
             // Save the base category
             $this->categoryRepository->save($category);
@@ -193,7 +198,9 @@ class CategoryImporterHelper
             
         } catch (\Exception $e) {
             $this->logger->error("Error creating category {$name}: " . $e->getMessage());
-            throw new \Exception("Error creating category {$name}: " . $e->getMessage());
+            throw new LocalizedException(
+                __('Error creating category %1: %2', $name, $e->getMessage())
+            );
         }
     }
 
@@ -229,10 +236,11 @@ class CategoryImporterHelper
 
         } catch (\Exception $e) {
             $this->logger->error("Error creating category '{$data['name']}': " . $e->getMessage());
-            throw new \Exception("Error creating category '{$data['name']}': " . $e->getMessage());
+            throw new LocalizedException(
+                __('Error creating category \'%1\': %2', $data['name'], $e->getMessage())
+            );
         }
     }
-
 
     /**
      * Get category ID by name
@@ -335,7 +343,9 @@ class CategoryImporterHelper
                     $category->save();
                 } catch (\Exception $e) {
                     // Log the error but continue with other stores
-                    $this->logger->warning("Error setting localized attributes for store {$storeId}: " . $e->getMessage());
+                    $this->logger->warning(
+                        "Error setting localized attributes for store {$storeId}: " . $e->getMessage()
+                    );
                     continue;
                 }
             }
@@ -467,14 +477,18 @@ class CategoryImporterHelper
     private function findCategoryByName(string $name, int $parentId): ?Category
     {
         try {
-            $category = $this->categoryFactory->create();
-            $category->getResource()->load($category, $name, 'name');
+            // Use collection to find category by name and parent
+            $categoryCollection = $this->categoryCollectionFactory->create();
+            $categoryCollection->addFieldToFilter('name', $name);
+            $categoryCollection->addFieldToFilter('parent_id', $parentId);
+            $categoryCollection->setPageSize(1);
 
-            if ($category->getId() && $category->getParentId() == $parentId) {
+            $category = $categoryCollection->getFirstItem();
+            if ($category->getId()) {
                 return $category;
             }
         } catch (\Exception $e) {
-            // Category not found, continue
+            $this->logger->warning("Error finding category by name '{$name}': " . $e->getMessage());
         }
 
         return null;

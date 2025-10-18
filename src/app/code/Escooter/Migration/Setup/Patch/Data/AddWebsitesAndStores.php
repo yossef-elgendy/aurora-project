@@ -18,6 +18,7 @@ use Magento\Store\Model\ResourceModel\Store as StoreResource;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 
 /**
@@ -121,7 +122,7 @@ class AddWebsitesAndStores implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -250,7 +251,9 @@ class AddWebsitesAndStores implements DataPatchInterface
         $this->websiteResource->load($website, 1);
 
         if (!$website->getId()) {
-            throw new \Exception('Main website not found');
+            throw new LocalizedException(
+                __('Main website not found')
+            );
         }
 
         // Update website properties
@@ -277,7 +280,9 @@ class AddWebsitesAndStores implements DataPatchInterface
         $this->groupResource->load($group, 1);
 
         if (!$group->getId()) {
-            throw new \Exception('Main store group not found');
+            throw new LocalizedException(
+                __('Main store group not found')
+            );
         }
 
         // Update group properties
@@ -305,7 +310,9 @@ class AddWebsitesAndStores implements DataPatchInterface
         $this->storeResource->load($store, 1);
 
         if (!$store->getId()) {
-            throw new \Exception('Default store not found');
+            throw new LocalizedException(
+                __('Default store not found')
+            );
         }
 
         // Update store properties
@@ -344,21 +351,22 @@ class AddWebsitesAndStores implements DataPatchInterface
     private function isTestEnvironment()
     {
         return defined('TESTS_CLEANUP') && constant('TESTS_CLEANUP') === 'enabled' ||
+                //@codingStandardsIgnoreLine
                strpos($_SERVER['REQUEST_URI'] ?? '', '/dev/tests/') !== false ||
+                //@codingStandardsIgnoreLine
                strpos($_SERVER['SCRIPT_NAME'] ?? '', 'phpunit') !== false;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
         return [];
     }
 
-
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

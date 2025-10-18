@@ -26,7 +26,6 @@ class SyncManagementTest extends TestCase
         $this->syncManagement = $objectManager->get(SyncManagementInterface::class);
     }
 
-
     /**
      * Test sync status for non-existent order
      */
@@ -37,7 +36,7 @@ class SyncManagementTest extends TestCase
         // Debug: Let's see what we actually get
         $this->assertNotNull($response, 'Response should not be null');
         $this->assertInstanceOf(SyncStatusResponseInterface::class, $response);
-        
+
         $this->assertEquals('not_synced', $response->getStatus());
         $this->assertEquals('999999999', $response->getOrderIncrementId());
     }

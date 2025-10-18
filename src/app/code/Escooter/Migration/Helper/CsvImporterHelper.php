@@ -9,6 +9,7 @@ namespace Escooter\Migration\Helper;
 use Magento\Framework\File\Csv;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -59,7 +60,6 @@ class CsvImporterHelper
         return $this->processCsvFile($csvFile, $filename);
     }
 
-
     /**
      * Process CSV file and return data
      *
@@ -71,8 +71,10 @@ class CsvImporterHelper
     private function processCsvFile(string $csvFile, string $filename): array
     {
         try {
-            if (!file_exists($csvFile)) {
-                throw new \Exception("CSV file not found: {$csvFile}");
+            if (!$this->filesystem->getDirectoryRead(DirectoryList::APP)->isFile($csvFile)) {
+                throw new LocalizedException(
+                    __('CSV file not found: %1', $csvFile)
+                );
             }
 
             $data = $this->csvProcessor->getData($csvFile);
@@ -84,7 +86,10 @@ class CsvImporterHelper
                 if (count($row) === count($headers)) {
                     $processedData[] = array_combine($headers, $row);
                 } else {
-                    $this->logger->warning("CSV row mismatch in {$filename}. Headers: " . count($headers) . ", Row: " . count($row));
+                    $this->logger->warning(
+                        "CSV row mismatch in {$filename}. Headers: " . count($headers) .
+                        ", Row: " . count($row)
+                    );
                 }
             }
 
@@ -93,7 +98,9 @@ class CsvImporterHelper
 
         } catch (\Exception $e) {
             $this->logger->error("Error processing CSV file {$filename}: " . $e->getMessage());
-            throw new \Exception("Error processing CSV file {$filename}: " . $e->getMessage());
+            throw new LocalizedException(
+                __('Error processing CSV file %1: %2', $filename, $e->getMessage())
+            );
         }
     }
 

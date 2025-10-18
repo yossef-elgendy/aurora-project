@@ -13,20 +13,20 @@ use Magento\Store\Model\ScopeInterface;
 
 class Config extends AbstractHelper
 {
-    const XML_PATH_GENERAL_ENABLED = 'erpconnector/general/enabled';
-    const XML_PATH_GENERAL_IMMEDIATE_SYNC = 'erpconnector/general/immediate_sync_on_invoice';
-    const XML_PATH_GENERAL_DEBUG = 'erpconnector/general/debug';
+    public const XML_PATH_GENERAL_ENABLED = 'erpconnector/general/enabled';
+    public const XML_PATH_GENERAL_IMMEDIATE_SYNC = 'erpconnector/general/immediate_sync_on_invoice';
+    public const XML_PATH_GENERAL_DEBUG = 'erpconnector/general/debug';
 
-    const XML_PATH_CRON_ENABLED = 'erpconnector/cron/enabled';
-    const XML_PATH_CRON_SCHEDULE = 'erpconnector/cron/schedule';
+    public const XML_PATH_CRON_ENABLED = 'erpconnector/cron/enabled';
+    public const XML_PATH_CRON_SCHEDULE = 'erpconnector/cron/schedule';
 
-    const XML_PATH_ERP_API_BASE_URL = 'erpconnector/erp_api/base_url';
-    const XML_PATH_ERP_API_KEY = 'erpconnector/erp_api/api_key';
-    const XML_PATH_ERP_API_HMAC_SECRET = 'erpconnector/erp_api/hmac_secret';
-    const XML_PATH_ERP_API_TIMEOUT = 'erpconnector/erp_api/timeout';
+    public const XML_PATH_ERP_API_BASE_URL = 'erpconnector/erp_api/base_url';
+    public const XML_PATH_ERP_API_KEY = 'erpconnector/erp_api/api_key';
+    public const XML_PATH_ERP_API_HMAC_SECRET = 'erpconnector/erp_api/hmac_secret';
+    public const XML_PATH_ERP_API_TIMEOUT = 'erpconnector/erp_api/timeout';
 
-    const XML_PATH_RETRY_MAX_ATTEMPTS = 'erpconnector/retry/max_attempts';
-    const XML_PATH_RETRY_BASE_DELAY = 'erpconnector/retry/base_delay_seconds';
+    public const XML_PATH_RETRY_MAX_ATTEMPTS = 'erpconnector/retry/max_attempts';
+    public const XML_PATH_RETRY_BASE_DELAY = 'erpconnector/retry/base_delay_seconds';
 
     /**
      * @var EncryptorInterface
