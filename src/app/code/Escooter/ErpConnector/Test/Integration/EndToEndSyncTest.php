@@ -112,7 +112,7 @@ class EndToEndSyncTest extends TestCase
      */
     public function testSyncRecordMultipleIdentifiers()
     {
-        $syncFactory = Bootstrap::getObjectManager()->get(\Escooter\ErpConnector\Model\SyncFactory::class);
+        $syncFactory = Bootstrap::getObjectManager()->get(SyncFactory::class);
         
         // Create sync
         $idempotencyKey = 'unique-test-key-' . time();

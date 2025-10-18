@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace Escooter\ErpConnector\Model;
 
+use Escooter\ErpConnector\Model\ResourceModel\Sync as SyncResource;
 use Escooter\ErpConnector\Api\Data\SyncInterface;
 use Magento\Framework\Model\AbstractModel;
 
@@ -16,7 +17,7 @@ class Sync extends AbstractModel implements SyncInterface
      */
     protected function _construct()
     {
-        $this->_init(\Escooter\ErpConnector\Model\ResourceModel\Sync::class);
+        $this->_init(SyncResource::class);
     }
 
     /**
