@@ -87,4 +87,3 @@ interface SyncRepositoryInterface
      */
     public function deleteById(int $syncId): bool;
 }
-

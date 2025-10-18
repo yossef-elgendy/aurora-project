@@ -76,8 +76,8 @@ class DbSchemaTest extends TestCase
         // Check for composite index on status and next_attempt_at
         $hasStatusIndex = false;
         foreach ($indexes as $index) {
-            if (isset($index['COLUMNS_LIST']) && 
-                in_array('status', $index['COLUMNS_LIST']) && 
+            if (isset($index['COLUMNS_LIST']) &&
+                in_array('status', $index['COLUMNS_LIST']) &&
                 in_array('next_attempt_at', $index['COLUMNS_LIST'])) {
                 $hasStatusIndex = true;
                 break;
@@ -97,4 +97,3 @@ class DbSchemaTest extends TestCase
         );
     }
 }
-

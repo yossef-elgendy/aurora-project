@@ -7,4 +7,3 @@
     'Escooter_ErpConnector',
     __DIR__
 );
-

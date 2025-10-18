@@ -55,6 +55,4 @@ interface SyncManagementInterface
         string $status,
         ?string $signature = null
     ): WebhookResponseInterface;
-
 }
-

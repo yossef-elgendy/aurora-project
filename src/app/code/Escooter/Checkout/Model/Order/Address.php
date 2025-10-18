@@ -34,4 +34,3 @@ class Address extends OrderAddress
         return $this->setData('escooter_notes', $escooterNotes);
     }
 }
-

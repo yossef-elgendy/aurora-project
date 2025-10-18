@@ -437,4 +437,3 @@ class ErpSyncService
         return $this->syncRepository->save($sync);
     }
 }
-

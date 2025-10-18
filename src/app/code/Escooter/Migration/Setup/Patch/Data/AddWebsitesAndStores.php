@@ -129,7 +129,7 @@ class AddWebsitesAndStores implements DataPatchInterface
 
         try {
             // Get the default root category
-            $rootCategory = $this->categoryRepository->get(SELF::ROOT_CATEGORY_ID);
+            $rootCategory = $this->categoryRepository->get(self::ROOT_CATEGORY_ID);
 
             // Update main website (ID 1) to become UK website
             $ukWebsite = $this->updateMainWebsiteToUK();

@@ -98,4 +98,3 @@ class InvoiceCreatedObserver implements ObserverInterface
         }
     }
 }
-

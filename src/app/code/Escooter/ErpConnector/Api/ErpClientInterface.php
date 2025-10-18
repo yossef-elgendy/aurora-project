@@ -27,4 +27,3 @@ interface ErpClientInterface
      */
     public function testConnection(): bool;
 }
-

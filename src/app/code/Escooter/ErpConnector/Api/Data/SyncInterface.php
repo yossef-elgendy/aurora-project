@@ -255,4 +255,3 @@ interface SyncInterface
      */
     public function setUpdatedAt($updatedAt);
 }
-

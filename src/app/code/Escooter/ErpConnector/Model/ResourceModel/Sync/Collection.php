@@ -25,4 +25,3 @@ class Collection extends AbstractCollection
         $this->_init(SyncModel::class, SyncResource::class);
     }
 }
-

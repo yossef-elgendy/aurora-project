@@ -176,4 +176,3 @@ class SyncRepository implements SyncRepositoryInterface
         return $this->delete($this->getById($syncId));
     }
 }
-

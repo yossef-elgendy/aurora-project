@@ -41,4 +41,3 @@ class Collection
         return [$printQuery, $logQuery];
     }
 }
-

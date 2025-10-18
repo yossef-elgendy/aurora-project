@@ -52,4 +52,3 @@ class Form extends OriginalForm
         return $this;
     }
 }
-

@@ -39,4 +39,3 @@ class IdempotencyKeyGenerator
         return self::PREFIX . hash('sha256', $orderIncrementId . '_' . $timestamp);
     }
 }
-

@@ -198,4 +198,3 @@ class ErpClientTest extends TestCase
         $this->erpClient->sendOrder($payload, $idempotencyKey);
     }
 }
-

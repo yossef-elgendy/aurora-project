@@ -55,6 +55,14 @@ jobs:
       run: composer install --prefer-dist --no-progress
       working-directory: src
 
+    - name: Auto-fix PHP CodeSniffer issues
+      run: vendor/bin/phpcbf app/code --standard=Magento2 --extensions=php
+      working-directory: src
+
+    - name: Run PHP CodeSniffer
+      run: vendor/bin/phpcs app/code --standard=Magento2 --extensions=php
+      working-directory: src
+
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 

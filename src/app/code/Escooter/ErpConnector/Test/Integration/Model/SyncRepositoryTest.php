@@ -171,4 +171,3 @@ class SyncRepositoryTest extends TestCase
         $this->syncRepository->getById((int)$syncId);
     }
 }
-

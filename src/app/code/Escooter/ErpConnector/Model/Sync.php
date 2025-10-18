@@ -259,4 +259,3 @@ class Sync extends AbstractModel implements SyncInterface
         return $this->setData(self::UPDATED_AT, $updatedAt);
     }
 }
-

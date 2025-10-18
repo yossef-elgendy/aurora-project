@@ -57,4 +57,3 @@ class CopyEscooterNotesToInvoice implements ObserverInterface
         }
     }
 }
-

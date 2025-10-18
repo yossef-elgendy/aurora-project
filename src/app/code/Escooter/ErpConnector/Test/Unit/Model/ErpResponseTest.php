@@ -125,4 +125,3 @@ class ErpResponseTest extends TestCase
         $this->assertFalse($response->isRetryable());
     }
 }
-

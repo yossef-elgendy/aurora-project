@@ -38,4 +38,3 @@ interface MockStockItemInterface
      */
     public function setQty(int $qty);
 }
-

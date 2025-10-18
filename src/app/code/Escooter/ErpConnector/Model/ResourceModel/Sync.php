@@ -18,4 +18,3 @@ class Sync extends AbstractDb
         $this->_init('vendor_erp_sync', 'sync_id');
     }
 }
-

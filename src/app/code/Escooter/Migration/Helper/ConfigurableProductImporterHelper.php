@@ -415,8 +415,8 @@ class ConfigurableProductImporterHelper
                 // Validate that the attribute can be used for configurable products
                 try {
                     $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $attributeCode);
-                    if ($attribute->getId() && 
-                        $attribute->getIsVisible() && 
+                    if ($attribute->getId() &&
+                        $attribute->getIsVisible() &&
                         $attribute->usesSource() &&
                         $attribute->getIsGlobal() == \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL) {
                         
@@ -459,8 +459,8 @@ class ConfigurableProductImporterHelper
                 }
 
                 // Log attribute properties for debugging
-                $this->logger->info("Building options for attribute {$attributeCode}: is_global=" . $attribute->getIsGlobal() . 
-                    ", is_visible=" . $attribute->getIsVisible() . 
+                $this->logger->info("Building options for attribute {$attributeCode}: is_global=" . $attribute->getIsGlobal() .
+                    ", is_visible=" . $attribute->getIsVisible() .
                     ", uses_source=" . ($attribute->usesSource() ? '1' : '0'));
 
                 // Collect all unique option values for this attribute from variations
@@ -563,7 +563,7 @@ class ConfigurableProductImporterHelper
         $pathIds = empty($path) ? [] : explode('/', $path);
 
         // Remove root category (ID 1) and default category (ID 2) from path
-        $pathIds = array_filter($pathIds, function($id) {
+        $pathIds = array_filter($pathIds, function ($id) {
             return $id != '1' && $id != '2';
         });
 

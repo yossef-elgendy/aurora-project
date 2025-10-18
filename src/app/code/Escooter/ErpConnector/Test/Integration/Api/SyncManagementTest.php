@@ -60,4 +60,3 @@ class SyncManagementTest extends TestCase
         $this->assertNotEmpty($response->getMessage());
     }
 }
-

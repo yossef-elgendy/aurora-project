@@ -266,7 +266,7 @@ class CategoryImporterHelper
         $pathIds = explode('/', $path);
 
         // Remove root category (ID 1) and default category (ID 2) from path
-        $pathIds = array_filter($pathIds, function($id) {
+        $pathIds = array_filter($pathIds, function ($id) {
             return $id != '1' && $id != '2';
         });
 

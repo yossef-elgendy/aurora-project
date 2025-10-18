@@ -92,4 +92,3 @@ class IdempotencyKeyGeneratorTest extends TestCase
         $this->assertNotEquals($key1, $key2);
     }
 }
-

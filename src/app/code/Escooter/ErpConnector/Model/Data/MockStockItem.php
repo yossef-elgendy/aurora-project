@@ -43,4 +43,3 @@ class MockStockItem extends DataObject implements MockStockItemInterface
         return $this->setData('qty', $qty);
     }
 }
-

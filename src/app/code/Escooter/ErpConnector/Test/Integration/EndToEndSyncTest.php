@@ -62,7 +62,7 @@ class EndToEndSyncTest extends TestCase
 
     /**
      * Test complete sync flow
-     * 
+     *
      * @magentoConfigFixture current_store erpconnector/general/enabled 1
      * @magentoConfigFixture current_store erpconnector/erp_api/base_url http://localhost/rest/V1/erpconnector
      */
@@ -107,7 +107,7 @@ class EndToEndSyncTest extends TestCase
 
     /**
      * Test sync record creation and retrieval by different identifiers
-     * 
+     *
      * @magentoDbIsolation enabled
      */
     public function testSyncRecordMultipleIdentifiers()
@@ -142,7 +142,7 @@ class EndToEndSyncTest extends TestCase
 
     /**
      * Test sync list filtering
-     * 
+     *
      * @magentoDbIsolation enabled
      */
     public function testSyncListFiltering()
@@ -181,7 +181,7 @@ class EndToEndSyncTest extends TestCase
 
     /**
      * Test sync order functionality
-     * 
+     *
      * @magentoDbIsolation enabled
      */
     public function testSyncOrder()
@@ -196,7 +196,7 @@ class EndToEndSyncTest extends TestCase
 
     /**
      * Test sync retry logic with attempts tracking
-     * 
+     *
      * @magentoDbIsolation enabled
      */
     public function testSyncRetryTracking()
@@ -227,4 +227,3 @@ class EndToEndSyncTest extends TestCase
         $this->assertStringContainsString('attempt 3', $finalSync->getLastError());
     }
 }
-
