@@ -34,7 +34,7 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
 
 3. **Start the Docker environment (without development tools)**
    ```bash
-   docker compose up --build --force-recreate -d
+   docker compose -f compose.yaml -f compose.dev.yaml up -d --build --force-recreate
    ```
 
 4. **Copy files to container and install dependencies**
