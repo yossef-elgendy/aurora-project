@@ -52,8 +52,6 @@ jobs:
         composer dump-autoload --optimize
       working-directory: src
 
-      working-directory: src
-
     - name: Run PHP CodeSniffer
       run: vendor/bin/phpcs app/code --standard=Magento2 --extensions=php
       working-directory: src
