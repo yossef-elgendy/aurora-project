@@ -42,17 +42,16 @@ jobs:
         mkdir -p var/view_preprocessed
       working-directory: src
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: src/vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+    - name: Clear Composer cache
+      run: composer clear-cache
+      working-directory: src
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: |
+        composer install --prefer-dist --no-progress --no-interaction --no-cache
+        composer dump-autoload --optimize
+      working-directory: src
+
       working-directory: src
 
     - name: Run PHP CodeSniffer
