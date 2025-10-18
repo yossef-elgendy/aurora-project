@@ -32,6 +32,16 @@ jobs:
       run: composer config --global http-basic.repo.magento.com ${{ secrets.MAGENTO_PUBLIC_KEY }} ${{ secrets.MAGENTO_PRIVATE_KEY }}
       working-directory: src
 
+    - name: Create required directories
+      run: |
+        mkdir -p generated/code
+        mkdir -p var/cache
+        mkdir -p var/page_cache
+        mkdir -p var/session
+        mkdir -p var/tmp
+        mkdir -p var/view_preprocessed
+      working-directory: src
+
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
