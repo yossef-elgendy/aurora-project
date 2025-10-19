@@ -82,9 +82,12 @@ class ErpClient implements ErpClientInterface
                 'X-Idempotency-Key' => $idempotencyKey
             ];
 
-            if (!empty($apiKey)) {
-                $headers['X-API-KEY'] = $apiKey;
+            if (empty($apiKey)) {
+                throw new \RuntimeException('ERP API Key is not configured');
             }
+
+            $headers['X-API-KEY'] = $apiKey;
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
 
             // Add HMAC signature if secret is configured
             $hmacSecret = $this->config->getHmacSecret();
