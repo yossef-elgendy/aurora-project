@@ -9,7 +9,7 @@
         <erpconnector>
             <general>
                 <enabled>1</enabled>
-                <immediate_sync_on_invoice>1</immediate_sync_on_invoice>
+                <immediate_sync_on_invoice>0</immediate_sync_on_invoice>
                 <debug>0</debug>
             </general>
             <cron>
@@ -26,4 +26,3 @@
         </erpconnector>
     </default>
 </config>
-
