@@ -32,18 +32,25 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    # Especially change passwords in db.env, magento.env, and rabbitmq.env
    ```
 
-3. **Start the Docker environment (without development tools)**
+3. **Configure Composer authentication for Magento Marketplace**
+   ```bash
+   # Set up composer authentication with your Magento Marketplace credentials
+   bin/composer config --global http-basic.repo.magento.com <public_key> <private_key>
+   ```
+   > **Note**: Replace `<public_key>` and `<private_key>` with your actual Magento Marketplace credentials. You can find these in your [Magento Marketplace account](https://marketplace.magento.com/customer/accessKeys/).
+
+4. **Start the Docker environment (without development tools)**
    ```bash
    docker compose up --build --force-recreate -d
    ```
 
-4. **Copy files to container and install dependencies**
+5. **Copy files to container and install dependencies**
    ```bash
    bin/copytocontainer --all
    bin/composer install
    ```
 
-5. **Install Magento with main domain**
+6. **Install Magento with main domain**
    ```bash
    bin/setup-install aurora.local
    bin/magento setup:upgrade
@@ -51,7 +58,7 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    bin/magento setup:di:compile
    ```
 
-6. **Add domains to /etc/hosts**
+7. **Add domains to /etc/hosts**
    ```bash
    # Add these lines to your /etc/hosts file:
    sudo nano /etc/hosts
@@ -63,7 +70,7 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    127.0.0.1 aurora.it.local
    ```
 
-7. **Setup SSL certificates for all domains**
+8. **Setup SSL certificates for all domains**
    ```bash
    bin/setup-ssl aurora.local
    bin/setup-ssl aurora.fr.local
@@ -71,12 +78,12 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
    bin/setup-ssl aurora.it.local
    ```
 
-8. **Restart containers to apply all changes**
+9. **Restart containers to apply all changes**
    ```bash
    bin/restart
    ```
 
-9. **Access your sites**
+10. **Access your sites**
    - **Main Store (English)**: `https://aurora.local`
    - **French Store**: `https://aurora.fr.local`
    - **Irish Store**: `https://aurora.ie.local`
@@ -99,6 +106,7 @@ A Magento 2.4.8 development environment using [Mark Shust's Docker configuration
 - [ ] Git repository cloned
 - [ ] Environment files created from examples
 - [ ] Environment files edited with secure passwords
+- [ ] Composer authentication configured for Magento Marketplace
 - [ ] Containers started (`bin/start --no-dev`)
 - [ ] Files copied to container (`bin/copytocontainer --all`)
 - [ ] Composer dependencies installed (`bin/composer install`)
